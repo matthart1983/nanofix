@@ -1,4 +1,4 @@
-/// Lightweight web dashboard for the Velocitas FIX engine.
+/// Lightweight web dashboard for the nanofix FIX engine.
 ///
 /// Serves real-time metrics, session status, and health checks via HTTP.
 /// No external dependencies — generates JSON and HTML by hand.
@@ -299,7 +299,7 @@ impl Dashboard {
 <head>
 <meta charset="utf-8">
 <meta http-equiv="refresh" content="{}">
-<title>Velocitas FIX Engine Dashboard</title>
+<title>nanofix Dashboard</title>
 <style>
 body {{ font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 2em; background: #f5f5f5; }}
 h1 {{ color: #333; }}
@@ -317,7 +317,7 @@ tr:nth-child(even) {{ background: #f9f9f9; }}
 </style>
 </head>
 <body>
-<h1>Velocitas FIX Engine</h1>"#,
+<h1>nanofix</h1>"#,
             refresh_secs
         );
 
@@ -387,36 +387,36 @@ tr:nth-child(even) {{ background: #f9f9f9; }}
     /// Render placeholder Prometheus text-format metrics.
     fn render_prometheus_metrics(&self) -> String {
         let mut out = String::with_capacity(512);
-        let _ = writeln!(out, "# HELP velocitas_up Engine health (1=up, 0=down)");
-        let _ = writeln!(out, "# TYPE velocitas_up gauge");
+        let _ = writeln!(out, "# HELP nanofix_up Engine health (1=up, 0=down)");
+        let _ = writeln!(out, "# TYPE nanofix_up gauge");
         let _ = writeln!(
             out,
-            "velocitas_up {}",
+            "nanofix_up {}",
             if self.health.healthy { 1 } else { 0 }
         );
         let _ = writeln!(
             out,
-            "# HELP velocitas_active_sessions Number of active FIX sessions"
+            "# HELP nanofix_active_sessions Number of active FIX sessions"
         );
-        let _ = writeln!(out, "# TYPE velocitas_active_sessions gauge");
+        let _ = writeln!(out, "# TYPE nanofix_active_sessions gauge");
         let _ = writeln!(
             out,
-            "velocitas_active_sessions {}",
+            "nanofix_active_sessions {}",
             self.health.active_sessions
         );
         let _ = writeln!(
             out,
-            "# HELP velocitas_messages_processed_total Total messages processed"
+            "# HELP nanofix_messages_processed_total Total messages processed"
         );
-        let _ = writeln!(out, "# TYPE velocitas_messages_processed_total counter");
+        let _ = writeln!(out, "# TYPE nanofix_messages_processed_total counter");
         let _ = writeln!(
             out,
-            "velocitas_messages_processed_total {}",
+            "nanofix_messages_processed_total {}",
             self.health.messages_processed
         );
-        let _ = writeln!(out, "# HELP velocitas_uptime_seconds Engine uptime");
-        let _ = writeln!(out, "# TYPE velocitas_uptime_seconds gauge");
-        let _ = writeln!(out, "velocitas_uptime_seconds {}", self.health.uptime_secs);
+        let _ = writeln!(out, "# HELP nanofix_uptime_seconds Engine uptime");
+        let _ = writeln!(out, "# TYPE nanofix_uptime_seconds gauge");
+        let _ = writeln!(out, "nanofix_uptime_seconds {}", self.health.uptime_secs);
         out
     }
 
@@ -534,7 +534,7 @@ mod tests {
         let resp = dash.handle_request("GET", "/");
         assert_eq!(resp.status_code, 200);
         assert!(resp.content_type.contains("text/html"));
-        assert!(resp.body.contains("Velocitas FIX Engine"));
+        assert!(resp.body.contains("nanofix"));
     }
 
     #[test]
@@ -544,7 +544,7 @@ mod tests {
         let resp = dash.handle_request("GET", "/metrics");
         assert_eq!(resp.status_code, 200);
         assert!(resp.content_type.contains("text/plain"));
-        assert!(resp.body.contains("velocitas_up 1"));
+        assert!(resp.body.contains("nanofix_up 1"));
     }
 
     #[test]
@@ -660,7 +660,7 @@ mod tests {
         dash.update_health(test_health());
         dash.update_session(test_session("S1"));
         let html = dash.render_html_dashboard();
-        assert!(html.contains("Velocitas FIX Engine"));
+        assert!(html.contains("nanofix"));
         assert!(html.contains("meta http-equiv=\"refresh\""));
         assert!(html.contains("<table>"));
         assert!(html.contains("S1"));

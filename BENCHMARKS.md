@@ -1,4 +1,4 @@
-# Velocitas FIX Engine — Performance Benchmark Suite
+# nanofix — Performance Benchmark Suite
 
 ## 1. Benchmark Methodology
 
@@ -21,7 +21,7 @@
 | Engine | Version | Notes |
 |---|---|---|
 | QuickFIX/J | 2.3.1 | Open source, Java |
-| **Velocitas** | **1.0** | **This engine** |
+| **nanofix** | **1.0** | **This engine** |
 
 ---
 
@@ -126,7 +126,7 @@
 
 **Setup:** Acceptor and initiator on the same host, connected via loopback TCP. 10,000 sequential round-trips (send NOS, wait for ExecRpt, record latency, repeat).
 
-**Velocitas Results:**
+**nanofix Results:**
 
 | Percentile | Latency |
 |---|---|
@@ -158,7 +158,7 @@
 
 Both engines benchmarked using the same simple loop methodology with 1M iterations each, on the same hardware.
 
-| Benchmark | Velocitas | QuickFIX/J | Ratio |
+| Benchmark | nanofix | QuickFIX/J | Ratio |
 |---|---|---|---|
 | Parse Heartbeat | 474 ns | 330 ns | 0.70x |
 | Parse NewOrderSingle | 532 ns | 796 ns | 1.50x faster |
@@ -166,11 +166,11 @@ Both engines benchmarked using the same simple loop methodology with 1M iteratio
 | Serialize NewOrderSingle | 32 ns | 917 ns | 28.7x faster |
 | Mixed throughput | 1.83M msg/s | 1.21M msg/s | 1.51x higher |
 
-> **Note:** QuickFIX/J wins on Heartbeat parsing (a very small message). Velocitas is significantly faster on larger messages and serialization.
+> **Note:** QuickFIX/J wins on Heartbeat parsing (a very small message). nanofix is significantly faster on larger messages and serialization.
 
 ### TCP Round-Trip (10,000 NOS → ExecRpt, localhost)
 
-| Metric | Velocitas | QuickFIX/J | Ratio |
+| Metric | nanofix | QuickFIX/J | Ratio |
 |---|---|---|---|
 | p50 latency | 15.6 µs | 61.1 µs | 3.9x faster |
 | p99 latency | 52.9 µs | 342.7 µs | 6.5x faster |
@@ -178,7 +178,7 @@ Both engines benchmarked using the same simple loop methodology with 1M iteratio
 | max latency | 125.1 µs | 3,939.8 µs | 31.5x faster |
 | Throughput | 111,686 msg/s | 24,948 msg/s | 4.5x higher |
 
-> **Note:** QuickFIX/J's max latency (3.9 ms) reflects Java GC pauses. Velocitas has no GC and shows consistent tail latency.
+> **Note:** QuickFIX/J's max latency (3.9 ms) reflects Java GC pauses. nanofix has no GC and shows consistent tail latency.
 
 ---
 

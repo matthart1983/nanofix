@@ -177,7 +177,7 @@ impl Acceptor {
         let session_config = SessionConfig {
             session_id: format!("ACC-{}", conn_id),
             fix_version: self.config.default_fix_version.clone(),
-            sender_comp_id: "VELOCITAS".to_string(),
+            sender_comp_id: "NANOFIX".to_string(),
             target_comp_id: comp_id.to_string(),
             role: SessionRole::Acceptor,
             heartbeat_interval: self.config.default_heartbeat_interval,
@@ -511,7 +511,7 @@ mod tests {
         let session = acceptor.get_session(id).unwrap();
         assert_eq!(session.config().role, SessionRole::Acceptor);
         assert_eq!(session.config().target_comp_id, "CLIENT-A");
-        assert_eq!(session.config().sender_comp_id, "VELOCITAS");
+        assert_eq!(session.config().sender_comp_id, "NANOFIX");
     }
 
     #[test]

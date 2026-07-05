@@ -1,25 +1,25 @@
 use std::io;
 
-use velocitas_fix_sbe::message_header_codec::{
+use nanofix_sbe::message_header_codec::{
     MessageHeaderDecoder, ENCODED_LENGTH as SBE_HEADER_LENGTH,
 };
-use velocitas_fix_sbe::normalized_cancel_reject_codec::{
+use nanofix_sbe::normalized_cancel_reject_codec::{
     NormalizedCancelRejectDecoder, NormalizedCancelRejectEncoder,
 };
-use velocitas_fix_sbe::normalized_cancel_request_codec::{
+use nanofix_sbe::normalized_cancel_request_codec::{
     NormalizedCancelRequestDecoder, NormalizedCancelRequestEncoder,
 };
-use velocitas_fix_sbe::normalized_execution_report_codec::{
+use nanofix_sbe::normalized_execution_report_codec::{
     NormalizedExecutionReportDecoder, NormalizedExecutionReportEncoder,
 };
-use velocitas_fix_sbe::normalized_order_codec::{NormalizedOrderDecoder, NormalizedOrderEncoder};
-use velocitas_fix_sbe::normalized_order_status_request_codec::{
+use nanofix_sbe::normalized_order_codec::{NormalizedOrderDecoder, NormalizedOrderEncoder};
+use nanofix_sbe::normalized_order_status_request_codec::{
     NormalizedOrderStatusRequestDecoder, NormalizedOrderStatusRequestEncoder,
 };
-use velocitas_fix_sbe::normalized_replace_request_codec::{
+use nanofix_sbe::normalized_replace_request_codec::{
     NormalizedReplaceRequestDecoder, NormalizedReplaceRequestEncoder,
 };
-use velocitas_fix_sbe::{Encoder, ReadBuf, WriteBuf, SBE_SCHEMA_ID};
+use nanofix_sbe::{Encoder, ReadBuf, WriteBuf, SBE_SCHEMA_ID};
 
 use crate::message::MessageView;
 use crate::tags;
@@ -33,22 +33,22 @@ const NORMALIZED_ORDER_STATUS_REQUEST_VAR_DATA_FIELDS: usize = 5;
 const NORMALIZED_CANCEL_REJECT_VAR_DATA_FIELDS: usize = 4;
 
 pub const NORMALIZED_ORDER_SBE_OVERHEAD: usize = SBE_HEADER_LENGTH
-    + velocitas_fix_sbe::normalized_order_codec::SBE_BLOCK_LENGTH as usize
+    + nanofix_sbe::normalized_order_codec::SBE_BLOCK_LENGTH as usize
     + (NORMALIZED_ORDER_VAR_DATA_FIELDS * VAR_DATA_LENGTH_PREFIX);
 pub const NORMALIZED_EXECUTION_REPORT_SBE_OVERHEAD: usize = SBE_HEADER_LENGTH
-    + velocitas_fix_sbe::normalized_execution_report_codec::SBE_BLOCK_LENGTH as usize
+    + nanofix_sbe::normalized_execution_report_codec::SBE_BLOCK_LENGTH as usize
     + (NORMALIZED_EXECUTION_REPORT_VAR_DATA_FIELDS * VAR_DATA_LENGTH_PREFIX);
 pub const NORMALIZED_CANCEL_REQUEST_SBE_OVERHEAD: usize = SBE_HEADER_LENGTH
-    + velocitas_fix_sbe::normalized_cancel_request_codec::SBE_BLOCK_LENGTH as usize
+    + nanofix_sbe::normalized_cancel_request_codec::SBE_BLOCK_LENGTH as usize
     + (NORMALIZED_CANCEL_REQUEST_VAR_DATA_FIELDS * VAR_DATA_LENGTH_PREFIX);
 pub const NORMALIZED_REPLACE_REQUEST_SBE_OVERHEAD: usize = SBE_HEADER_LENGTH
-    + velocitas_fix_sbe::normalized_replace_request_codec::SBE_BLOCK_LENGTH as usize
+    + nanofix_sbe::normalized_replace_request_codec::SBE_BLOCK_LENGTH as usize
     + (NORMALIZED_REPLACE_REQUEST_VAR_DATA_FIELDS * VAR_DATA_LENGTH_PREFIX);
 pub const NORMALIZED_ORDER_STATUS_REQUEST_SBE_OVERHEAD: usize = SBE_HEADER_LENGTH
-    + velocitas_fix_sbe::normalized_order_status_request_codec::SBE_BLOCK_LENGTH as usize
+    + nanofix_sbe::normalized_order_status_request_codec::SBE_BLOCK_LENGTH as usize
     + (NORMALIZED_ORDER_STATUS_REQUEST_VAR_DATA_FIELDS * VAR_DATA_LENGTH_PREFIX);
 pub const NORMALIZED_CANCEL_REJECT_SBE_OVERHEAD: usize = SBE_HEADER_LENGTH
-    + velocitas_fix_sbe::normalized_cancel_reject_codec::SBE_BLOCK_LENGTH as usize
+    + nanofix_sbe::normalized_cancel_reject_codec::SBE_BLOCK_LENGTH as usize
     + (NORMALIZED_CANCEL_REJECT_VAR_DATA_FIELDS * VAR_DATA_LENGTH_PREFIX);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -528,7 +528,7 @@ pub fn decode_normalized_order_from_sbe(frame: &[u8]) -> io::Result<NormalizedOr
 pub fn decode_normalized_order_view_from_sbe(frame: &[u8]) -> io::Result<NormalizedOrderView<'_>> {
     let header = validate_header(
         frame,
-        velocitas_fix_sbe::normalized_order_codec::SBE_TEMPLATE_ID,
+        nanofix_sbe::normalized_order_codec::SBE_TEMPLATE_ID,
     )?;
     let mut decoder = NormalizedOrderDecoder::default().header(header, 0);
     let side = decoder.side();
@@ -626,7 +626,7 @@ pub fn decode_normalized_cancel_request_view_from_sbe(
 ) -> io::Result<NormalizedCancelRequestView<'_>> {
     let header = validate_header(
         frame,
-        velocitas_fix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID,
+        nanofix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID,
     )?;
     let mut decoder = NormalizedCancelRequestDecoder::default().header(header, 0);
     let side = decoder.side();
@@ -721,7 +721,7 @@ pub fn decode_normalized_replace_request_view_from_sbe(
 ) -> io::Result<NormalizedReplaceRequestView<'_>> {
     let header = validate_header(
         frame,
-        velocitas_fix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID,
+        nanofix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID,
     )?;
     let mut decoder = NormalizedReplaceRequestDecoder::default().header(header, 0);
     let side = decoder.side();
@@ -814,7 +814,7 @@ pub fn decode_normalized_order_status_request_view_from_sbe(
 ) -> io::Result<NormalizedOrderStatusRequestView<'_>> {
     let header = validate_header(
         frame,
-        velocitas_fix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID,
+        nanofix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID,
     )?;
     let mut decoder = NormalizedOrderStatusRequestDecoder::default().header(header, 0);
     let side = decoder.side();
@@ -878,17 +878,17 @@ pub fn decode_normalized_order_lifecycle_request_view_from_sbe(
     frame: &[u8],
 ) -> io::Result<NormalizedOrderLifecycleRequestView<'_>> {
     match peek_sbe_template_id(frame)? {
-        velocitas_fix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID => {
+        nanofix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID => {
             Ok(NormalizedOrderLifecycleRequestView::Cancel(
                 decode_normalized_cancel_request_view_from_sbe(frame)?,
             ))
         }
-        velocitas_fix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID => {
+        nanofix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID => {
             Ok(NormalizedOrderLifecycleRequestView::Replace(
                 decode_normalized_replace_request_view_from_sbe(frame)?,
             ))
         }
-        velocitas_fix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID => {
+        nanofix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID => {
             Ok(NormalizedOrderLifecycleRequestView::Status(
                 decode_normalized_order_status_request_view_from_sbe(frame)?,
             ))
@@ -1001,7 +1001,7 @@ pub fn decode_normalized_execution_report_view_from_sbe(
 ) -> io::Result<NormalizedExecutionReportView<'_>> {
     let header = validate_header(
         frame,
-        velocitas_fix_sbe::normalized_execution_report_codec::SBE_TEMPLATE_ID,
+        nanofix_sbe::normalized_execution_report_codec::SBE_TEMPLATE_ID,
     )?;
     let mut decoder = NormalizedExecutionReportDecoder::default().header(header, 0);
     let side = decoder.side();
@@ -1108,7 +1108,7 @@ pub fn decode_normalized_cancel_reject_view_from_sbe(
 ) -> io::Result<NormalizedCancelRejectView<'_>> {
     let header = validate_header(
         frame,
-        velocitas_fix_sbe::normalized_cancel_reject_codec::SBE_TEMPLATE_ID,
+        nanofix_sbe::normalized_cancel_reject_codec::SBE_TEMPLATE_ID,
     )?;
     let mut decoder = NormalizedCancelRejectDecoder::default().header(header, 0);
     let ord_status = decoder.ord_status();
@@ -1533,7 +1533,7 @@ mod tests {
             qty: 5_000_000,
             price: "1.08255".into(),
             sender_comp_id: "BLOOMBERG_FX".into(),
-            target_comp_id: "VELOCITAS_GATEWAY".into(),
+            target_comp_id: "NANOFIX_GATEWAY".into(),
         };
 
         let mut buffer = Vec::new();
@@ -1577,7 +1577,7 @@ mod tests {
             qty: 5_000_000,
             price: "1.08255".into(),
             sender_comp_id: "BLOOMBERG_FX".into(),
-            target_comp_id: "VELOCITAS_GATEWAY".into(),
+            target_comp_id: "NANOFIX_GATEWAY".into(),
         };
 
         let mut buffer = Vec::new();
@@ -1603,7 +1603,7 @@ mod tests {
             qty: 5_000_000,
             price: "1.08255".into(),
             sender_comp_id: "BLOOMBERG_FX".into(),
-            target_comp_id: "VELOCITAS_GATEWAY".into(),
+            target_comp_id: "NANOFIX_GATEWAY".into(),
         };
 
         let mut scratch = NormalizedExecutionReportScratch::default();
@@ -1639,7 +1639,7 @@ mod tests {
             side: b'1',
             qty: 6_000_000,
             sender_comp_id: "BLOOMBERG_FX".into(),
-            target_comp_id: "VELOCITAS_GATEWAY".into(),
+            target_comp_id: "NANOFIX_GATEWAY".into(),
         };
         let replace_request = NormalizedReplaceRequest {
             cl_ord_id: "BPIPE-ORD-0002".into(),
@@ -1649,7 +1649,7 @@ mod tests {
             qty: 6_000_000,
             price: "1.08260".into(),
             sender_comp_id: "BLOOMBERG_FX".into(),
-            target_comp_id: "VELOCITAS_GATEWAY".into(),
+            target_comp_id: "NANOFIX_GATEWAY".into(),
         };
         let status_request = NormalizedOrderStatusRequest {
             cl_ord_id: "BPIPE-ORD-0002".into(),
@@ -1657,14 +1657,14 @@ mod tests {
             symbol: "EUR/USD".into(),
             side: b'1',
             sender_comp_id: "BLOOMBERG_FX".into(),
-            target_comp_id: "VELOCITAS_GATEWAY".into(),
+            target_comp_id: "NANOFIX_GATEWAY".into(),
         };
 
         let mut buffer = Vec::new();
         let len = encode_normalized_cancel_request_as_sbe(&mut buffer, &cancel_request).unwrap();
         assert_eq!(
             peek_sbe_template_id(&buffer[..len]).unwrap(),
-            velocitas_fix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID
+            nanofix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID
         );
         assert_eq!(
             decode_normalized_cancel_request_from_sbe(&buffer[..len]).unwrap(),
@@ -1674,7 +1674,7 @@ mod tests {
         let len = encode_normalized_replace_request_as_sbe(&mut buffer, &replace_request).unwrap();
         assert_eq!(
             peek_sbe_template_id(&buffer[..len]).unwrap(),
-            velocitas_fix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID
+            nanofix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID
         );
         assert_eq!(
             decode_normalized_replace_request_from_sbe(&buffer[..len]).unwrap(),
@@ -1685,7 +1685,7 @@ mod tests {
             encode_normalized_order_status_request_as_sbe(&mut buffer, &status_request).unwrap();
         assert_eq!(
             peek_sbe_template_id(&buffer[..len]).unwrap(),
-            velocitas_fix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID
+            nanofix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID
         );
         assert_eq!(
             decode_normalized_order_status_request_from_sbe(&buffer[..len]).unwrap(),
@@ -1709,7 +1709,7 @@ mod tests {
         let len = encode_normalized_cancel_reject_as_sbe(&mut buffer, &reject).unwrap();
         assert_eq!(
             peek_sbe_template_id(&buffer[..len]).unwrap(),
-            velocitas_fix_sbe::normalized_cancel_reject_codec::SBE_TEMPLATE_ID
+            nanofix_sbe::normalized_cancel_reject_codec::SBE_TEMPLATE_ID
         );
 
         let decoded = decode_normalized_cancel_reject_from_sbe(&buffer[..len]).unwrap();
@@ -1726,7 +1726,7 @@ mod tests {
                 side: b'1',
                 qty: 6_000_000,
                 sender_comp_id: "BLOOMBERG_FX".into(),
-                target_comp_id: "VELOCITAS_GATEWAY".into(),
+                target_comp_id: "NANOFIX_GATEWAY".into(),
             }),
             NormalizedOrderLifecycleRequest::Replace(NormalizedReplaceRequest {
                 cl_ord_id: "BPIPE-ORD-0002".into(),
@@ -1736,7 +1736,7 @@ mod tests {
                 qty: 6_000_000,
                 price: "1.08260".into(),
                 sender_comp_id: "BLOOMBERG_FX".into(),
-                target_comp_id: "VELOCITAS_GATEWAY".into(),
+                target_comp_id: "NANOFIX_GATEWAY".into(),
             }),
             NormalizedOrderLifecycleRequest::Status(NormalizedOrderStatusRequest {
                 cl_ord_id: "BPIPE-ORD-0002".into(),
@@ -1744,7 +1744,7 @@ mod tests {
                 symbol: "EUR/USD".into(),
                 side: b'1',
                 sender_comp_id: "BLOOMBERG_FX".into(),
-                target_comp_id: "VELOCITAS_GATEWAY".into(),
+                target_comp_id: "NANOFIX_GATEWAY".into(),
             }),
         ];
 

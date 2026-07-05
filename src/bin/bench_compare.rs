@@ -1,17 +1,17 @@
-/// Velocitas FIX Engine benchmark — matches QuickFIX/J benchmark scenarios.
+/// nanofix benchmark — matches QuickFIX/J benchmark scenarios.
 ///
 /// Run with: cargo run --release --bin bench_compare
 use std::time::Instant;
 
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::serializer;
+use nanofix::parser::FixParser;
+use nanofix::serializer;
 
 const WARMUP: usize = 10_000;
 const ITERATIONS: usize = 100_000;
 
 fn main() {
     println!("╔══════════════════════════════════════════════════════════════════╗");
-    println!("║           Velocitas FIX Engine Benchmark  (Rust)                ║");
+    println!("║           nanofix Benchmark  (Rust)                ║");
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
 

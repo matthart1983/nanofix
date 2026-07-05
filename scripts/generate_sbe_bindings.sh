@@ -13,6 +13,6 @@ fi
 java --add-opens java.base/jdk.internal.misc=ALL-UNNAMED \
   -Dsbe.output.dir="$ROOT_DIR/generated/rust" \
   -Dsbe.target.language=Rust \
-  -Dsbe.target.namespace=velocitas_fix_sbe \
+  -Dsbe.target.namespace=nanofix_sbe \
   -jar "$SBE_TOOL_JAR" \
   "$ROOT_DIR/schema/fix_aeron_envelope.xml"

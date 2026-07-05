@@ -12,13 +12,13 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use velocitas_fix::client::{FixClient, FixClientConfig};
-use velocitas_fix::engine::{EngineContext, FixApp};
-use velocitas_fix::message::MessageView;
-use velocitas_fix::serializer;
-use velocitas_fix::server::{FixServer, FixServerConfig};
-use velocitas_fix::tags;
-use velocitas_fix::timestamp::{HrTimestamp, TimestampSource};
+use nanofix::client::{FixClient, FixClientConfig};
+use nanofix::engine::{EngineContext, FixApp};
+use nanofix::message::MessageView;
+use nanofix::serializer;
+use nanofix::server::{FixServer, FixServerConfig};
+use nanofix::tags;
+use nanofix::timestamp::{HrTimestamp, TimestampSource};
 
 const CYAN: &str = "\x1b[36m";
 const GREEN: &str = "\x1b[32m";
@@ -33,7 +33,7 @@ fn main() {
         "{BOLD}{CYAN}╔══════════════════════════════════════════════════════════════════╗{RESET}"
     );
     println!(
-        "{BOLD}{CYAN}║       ⚡  VELOCITAS — SERVER + CLIENT SESSION DEMO              ║{RESET}"
+        "{BOLD}{CYAN}║       ⚡  NANOFIX — SERVER + CLIENT SESSION DEMO              ║{RESET}"
     );
     println!(
         "{BOLD}{CYAN}╚══════════════════════════════════════════════════════════════════╝{RESET}"

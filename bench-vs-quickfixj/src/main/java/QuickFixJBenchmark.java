@@ -5,7 +5,7 @@ import quickfix.fix44.ExecutionReport;
 
 /**
  * QuickFIX/J benchmark — parse and serialize FIX messages.
- * Measures latency and throughput for direct comparison with Velocitas.
+ * Measures latency and throughput for direct comparison with nanofix.
  */
 public class QuickFixJBenchmark {
 

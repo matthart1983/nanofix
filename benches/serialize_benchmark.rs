@@ -2,7 +2,7 @@
 ///
 /// Measures the time to build and serialize FIX messages from field values.
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use velocitas_fix::serializer;
+use nanofix::serializer;
 
 fn bench_serialize_latency(c: &mut Criterion) {
     let mut group = c.benchmark_group("BM-02_serialize_latency");
@@ -121,7 +121,7 @@ fn bench_serialize_throughput(c: &mut Criterion) {
 }
 
 fn bench_serialize_roundtrip(c: &mut Criterion) {
-    let parser = velocitas_fix::parser::FixParser::new();
+    let parser = nanofix::parser::FixParser::new();
     let mut group = c.benchmark_group("BM-03_serialize_then_parse_roundtrip");
 
     group.bench_function("NOS_roundtrip", |b| {

@@ -1,0 +1,10 @@
+[package]
+name = "nanofix_sbe"
+version = "0.1.0"
+authors = ["sbetool"]
+description = "nanofix FIX Aeron transport and internal business messages"
+edition = "2021"
+
+[lib]
+name = "nanofix_sbe"
+path = "src/lib.rs"

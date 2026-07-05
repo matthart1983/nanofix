@@ -36,19 +36,19 @@ use aeron_c::{AeronErrorKind, Client as AeronClient, Publication, Subscription};
 use aeron_sbe::{decode_fix_payload_from_sbe, encode_fix_payload_as_sbe};
 use hdrhistogram::Histogram;
 
-use velocitas_fix::engine::{EngineContext, FixApp, FixEngine};
-use velocitas_fix::message::MessageView;
-use velocitas_fix::normalized_sbe::{
+use nanofix::engine::{EngineContext, FixApp, FixEngine};
+use nanofix::message::MessageView;
+use nanofix::normalized_sbe::{
     decode_normalized_execution_report_view_from_sbe, decode_normalized_order_view_from_sbe,
     encode_filled_execution_report_from_order_view_as_sbe, encode_normalized_order_as_sbe,
     NormalizedExecutionReportScratch, NormalizedOrder,
 };
-use velocitas_fix::serializer;
-use velocitas_fix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use velocitas_fix::tags;
-use velocitas_fix::timestamp::{HrTimestamp, TimestampSource};
-use velocitas_fix::transport::{Transport, TransportConfig};
-use velocitas_fix::transport_tcp::StdTcpTransport;
+use nanofix::serializer;
+use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
+use nanofix::tags;
+use nanofix::timestamp::{HrTimestamp, TimestampSource};
+use nanofix::transport::{Transport, TransportConfig};
+use nanofix::transport_tcp::StdTcpTransport;
 
 // ── Tuning ───────────────────────────────────────────────────────────────────
 
@@ -71,7 +71,7 @@ const YIELD_THRESHOLD: Duration = Duration::from_micros(500);
 
 fn main() -> io::Result<()> {
     println!("╔══════════════════════════════════════════════════════════════════╗");
-    println!("║  Velocitas FIX — TCP Venue + Aeron End-to-End Benchmark (Rust)  ║");
+    println!("║  nanofix FIX — TCP Venue + Aeron End-to-End Benchmark (Rust)  ║");
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
     println!("  Topology:");
@@ -94,7 +94,7 @@ fn main() -> io::Result<()> {
 
     // ── Aeron embedded media driver ──
     let aeron_dir = std::env::temp_dir()
-        .join(format!("velocitas-e2e-bench-{}", std::process::id()))
+        .join(format!("nanofix-e2e-bench-{}", std::process::id()))
         .display()
         .to_string();
     let _driver = aeron_c::EmbeddedMediaDriver::shared(&aeron_dir, true)

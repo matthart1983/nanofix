@@ -1,13 +1,13 @@
 use std::io;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use velocitas_fix_sbe::fix_aeron_envelope_codec::{
+use nanofix_sbe::fix_aeron_envelope_codec::{
     FixAeronEnvelopeDecoder, FixAeronEnvelopeEncoder, SBE_BLOCK_LENGTH, SBE_TEMPLATE_ID,
 };
-use velocitas_fix_sbe::message_header_codec::{
+use nanofix_sbe::message_header_codec::{
     MessageHeaderDecoder, ENCODED_LENGTH as SBE_HEADER_LENGTH,
 };
-use velocitas_fix_sbe::{Encoder, ReadBuf, WriteBuf, SBE_SCHEMA_ID};
+use nanofix_sbe::{Encoder, ReadBuf, WriteBuf, SBE_SCHEMA_ID};
 
 const VAR_DATA_LENGTH_PREFIX: usize = 4;
 pub(crate) const FIX_AERON_ENVELOPE_OVERHEAD: usize =

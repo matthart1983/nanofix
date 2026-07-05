@@ -47,7 +47,7 @@ impl Default for FixServerConfig {
         Self {
             bind_address: "0.0.0.0".into(),
             port: 9878,
-            sender_comp_id: "VELOCITAS".into(),
+            sender_comp_id: "NANOFIX".into(),
             fix_version: "FIX.4.4".into(),
             heartbeat_interval: Duration::from_secs(30),
             allowed_comp_ids: Vec::new(),

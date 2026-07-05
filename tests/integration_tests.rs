@@ -1,17 +1,17 @@
 use std::time::Duration;
-use velocitas_fix::journal::{session_hash, Journal, SyncPolicy};
-use velocitas_fix::parser::{FixParser, ParseError};
-use velocitas_fix::pool::BufferPool;
-use velocitas_fix::serializer;
-use velocitas_fix::session::{
+use nanofix::journal::{session_hash, Journal, SyncPolicy};
+use nanofix::parser::{FixParser, ParseError};
+use nanofix::pool::BufferPool;
+use nanofix::serializer;
+use nanofix::session::{
     SequenceResetPolicy, Session, SessionConfig, SessionRole, SessionState,
 };
-use velocitas_fix::tags;
-/// Integration tests for the Velocitas FIX Engine.
+use nanofix::tags;
+/// Integration tests for the nanofix.
 ///
 /// These tests validate end-to-end behavior across parser, serializer,
 /// session management, journal, and pool components.
-use velocitas_fix::*;
+use nanofix::*;
 
 // ============================================================================
 // Parse → Serialize roundtrip tests
@@ -279,7 +279,7 @@ fn test_reconnection_with_sequence_continuity() {
 
 #[test]
 fn test_journal_message_persistence_and_recovery() {
-    let path = std::env::temp_dir().join("velocitas-int-test-journal.dat");
+    let path = std::env::temp_dir().join("nanofix-int-test-journal.dat");
     let _ = std::fs::remove_file(&path);
 
     let hash = session_hash("BANK", "EXCHANGE");
@@ -521,7 +521,7 @@ fn test_checksum_integrity_across_message_types() {
 
 #[test]
 fn test_dictionary_field_lookup() {
-    use velocitas_fix::dictionary;
+    use nanofix::dictionary;
 
     let field = dictionary::lookup_field(35).unwrap();
     assert_eq!(field.name, "MsgType");

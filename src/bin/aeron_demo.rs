@@ -32,10 +32,10 @@ use aeron_c::{AeronError, AeronErrorKind, Client as RawAeronClient, Publication,
 use aeron_sbe::{decode_fix_payload_from_sbe, encode_fix_payload_as_sbe};
 use hdrhistogram::Histogram;
 
-use velocitas_fix::client::{FixClient, FixClientConfig};
-use velocitas_fix::engine::{EngineContext, FixApp, FixEngine};
-use velocitas_fix::message::MessageView;
-use velocitas_fix::normalized_sbe::{
+use nanofix::client::{FixClient, FixClientConfig};
+use nanofix::engine::{EngineContext, FixApp, FixEngine};
+use nanofix::message::MessageView;
+use nanofix::normalized_sbe::{
     decode_normalized_cancel_reject_view_from_sbe, decode_normalized_cancel_request_view_from_sbe,
     decode_normalized_execution_report_from_sbe, decode_normalized_execution_report_view_from_sbe,
     decode_normalized_order_from_sbe, decode_normalized_order_status_request_view_from_sbe,
@@ -50,13 +50,13 @@ use velocitas_fix::normalized_sbe::{
     NormalizedExecutionReportScratch, NormalizedExecutionReportView, NormalizedOrder,
     NormalizedOrderStatusRequestView, NormalizedOrderView, NormalizedReplaceRequestView,
 };
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::serializer;
-use velocitas_fix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use velocitas_fix::tags;
-use velocitas_fix::timestamp::{HrTimestamp, TimestampSource};
-use velocitas_fix::transport::TransportConfig;
-use velocitas_fix::transport_tcp::StdTcpTransport;
+use nanofix::parser::FixParser;
+use nanofix::serializer;
+use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
+use nanofix::tags;
+use nanofix::timestamp::{HrTimestamp, TimestampSource};
+use nanofix::transport::TransportConfig;
+use nanofix::transport_tcp::StdTcpTransport;
 
 const RESOURCE_TIMEOUT: Duration = Duration::from_secs(5);
 const RECEIVE_TIMEOUT: Duration = Duration::from_secs(5);
@@ -71,7 +71,7 @@ const LIVE_BENCHMARK_WARMUP_ROUND_TRIPS: u64 = 50_000;
 const LIVE_BENCHMARK_MEASURED_ROUND_TRIPS: u64 = 1_000_000;
 const BENCHMARK_STREAM_ID: i32 = 7101;
 
-const GATEWAY_COMP_ID: &str = "VELOCITAS_GATEWAY";
+const GATEWAY_COMP_ID: &str = "NANOFIX_GATEWAY";
 const VENUE_COMP_ID: &str = "BLOOMBERG_FX";
 const INITIAL_CL_ORD_ID: &str = "BPIPE-ORD-0001";
 const REPLACED_CL_ORD_ID: &str = "BPIPE-ORD-0002";
@@ -137,7 +137,7 @@ fn banner() {
         "{BOLD}{CYAN}╔══════════════════════════════════════════════════════════════════════╗{RESET}"
     );
     println!(
-        "{BOLD}{CYAN}║            VELOCITAS FIX VENUE -> AERON -> LIFECYCLE DEMO          ║{RESET}"
+        "{BOLD}{CYAN}║            NANOFIX FIX VENUE -> AERON -> LIFECYCLE DEMO          ║{RESET}"
     );
     println!(
         "{BOLD}{CYAN}║     independent runners: venue client, FIX gateway, order core     ║{RESET}"
@@ -764,13 +764,13 @@ fn run_live_round_trip_benchmark(
     warmup_round_trips: u64,
     measured_round_trips: u64,
 ) -> io::Result<()> {
-    let channel = format!("aeron:ipc?alias=velocitas-fix-benchmark-{BENCHMARK_STREAM_ID}");
+    let channel = format!("aeron:ipc?alias=nanofix-benchmark-{BENCHMARK_STREAM_ID}");
     let run_id = format!("{}-{BENCHMARK_STREAM_ID}", process::id());
     let aeron_dir = env::temp_dir()
-        .join(format!("velocitas-fix-benchmark-{run_id}"))
+        .join(format!("nanofix-benchmark-{run_id}"))
         .display()
         .to_string();
-    let driver_ready = env::temp_dir().join(format!("velocitas-driver-ready-{run_id}"));
+    let driver_ready = env::temp_dir().join(format!("nanofix-driver-ready-{run_id}"));
     let _ = fs::remove_dir_all(&aeron_dir);
     let _ = fs::remove_file(&driver_ready);
 
@@ -910,15 +910,15 @@ fn run_orchestrator() -> io::Result<()> {
         let listener = TcpListener::bind("127.0.0.1:0")?;
         listener.local_addr()?.port()
     };
-    let channel = format!("aeron:ipc?alias=velocitas-fix-venue-flow-{stream_id}");
+    let channel = format!("aeron:ipc?alias=nanofix-venue-flow-{stream_id}");
     let run_id = format!("{}-{}", process::id(), stream_id);
     let aeron_dir = env::temp_dir()
-        .join(format!("velocitas-fix-venue-flow-{run_id}"))
+        .join(format!("nanofix-venue-flow-{run_id}"))
         .display()
         .to_string();
-    let driver_ready = env::temp_dir().join(format!("velocitas-driver-ready-{run_id}"));
-    let internal_ready = env::temp_dir().join(format!("velocitas-internal-ready-{run_id}"));
-    let gateway_ready = env::temp_dir().join(format!("velocitas-gateway-ready-{run_id}"));
+    let driver_ready = env::temp_dir().join(format!("nanofix-driver-ready-{run_id}"));
+    let internal_ready = env::temp_dir().join(format!("nanofix-internal-ready-{run_id}"));
+    let gateway_ready = env::temp_dir().join(format!("nanofix-gateway-ready-{run_id}"));
 
     let _ = fs::remove_dir_all(&aeron_dir);
     let _ = fs::remove_file(&driver_ready);
@@ -1217,7 +1217,7 @@ impl FixApp for GatewayBridgeApp {
         let mut buf = [0u8; 2048];
         let template_id = peek_sbe_template_id(&reply_payload)?;
 
-        if template_id == velocitas_fix_sbe::normalized_execution_report_codec::SBE_TEMPLATE_ID {
+        if template_id == nanofix_sbe::normalized_execution_report_codec::SBE_TEMPLATE_ID {
             let reply = decode_normalized_execution_report_view_from_sbe(&reply_payload)?;
             detail(
                 "sbe reply",
@@ -1270,7 +1270,7 @@ impl FixApp for GatewayBridgeApp {
                 "converted normalized SBE reply into FIX ExecutionReport",
             );
             detail("execution report wire", fix_wire(response_wire));
-        } else if template_id == velocitas_fix_sbe::normalized_cancel_reject_codec::SBE_TEMPLATE_ID
+        } else if template_id == nanofix_sbe::normalized_cancel_reject_codec::SBE_TEMPLATE_ID
         {
             let reject = decode_normalized_cancel_reject_view_from_sbe(&reply_payload)?;
             detail(
@@ -1359,7 +1359,7 @@ fn run_internal_executor(
         let (_, request_payload) = aeron.recv_payload(RECEIVE_TIMEOUT)?;
         let template_id = peek_sbe_template_id(&request_payload)?;
 
-        if template_id == velocitas_fix_sbe::normalized_order_codec::SBE_TEMPLATE_ID {
+        if template_id == nanofix_sbe::normalized_order_codec::SBE_TEMPLATE_ID {
             let order = decode_normalized_order_view_from_sbe(&request_payload)?;
             step("internal", "received normalized NewOrderSingle over SBE");
             detail(
@@ -1392,7 +1392,7 @@ fn run_internal_executor(
             continue;
         }
 
-        if template_id == velocitas_fix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID
+        if template_id == nanofix_sbe::normalized_order_status_request_codec::SBE_TEMPLATE_ID
         {
             let request = decode_normalized_order_status_request_view_from_sbe(&request_payload)?;
             step(
@@ -1435,7 +1435,7 @@ fn run_internal_executor(
             continue;
         }
 
-        if template_id == velocitas_fix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID {
+        if template_id == nanofix_sbe::normalized_replace_request_codec::SBE_TEMPLATE_ID {
             let request = decode_normalized_replace_request_view_from_sbe(&request_payload)?;
             step(
                 "internal",
@@ -1490,7 +1490,7 @@ fn run_internal_executor(
             continue;
         }
 
-        if template_id == velocitas_fix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID {
+        if template_id == nanofix_sbe::normalized_cancel_request_codec::SBE_TEMPLATE_ID {
             let request = decode_normalized_cancel_request_view_from_sbe(&request_payload)?;
             step(
                 "internal",

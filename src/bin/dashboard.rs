@@ -1,4 +1,4 @@
-/// Standalone HTTP server for the Velocitas FIX Engine dashboard.
+/// Standalone HTTP server for the nanofix dashboard.
 ///
 /// Starts a TCP listener and serves the dashboard endpoints:
 ///   /         — HTML dashboard with auto-refresh
@@ -11,7 +11,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
 use std::time::Instant;
 
-use velocitas_fix::dashboard::{Dashboard, DashboardConfig, HealthStatus, SessionStatus};
+use nanofix::dashboard::{Dashboard, DashboardConfig, HealthStatus, SessionStatus};
 
 fn main() {
     let port = parse_port();
@@ -32,7 +32,7 @@ fn main() {
         std::process::exit(1);
     });
 
-    println!("⚡ Velocitas FIX Engine Dashboard");
+    println!("⚡ nanofix Dashboard");
     println!("   Listening on http://{bind}");
     println!("   Endpoints: /  /health  /metrics  /sessions  /api/latency");
     println!("   Press Ctrl+C to stop");

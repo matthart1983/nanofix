@@ -8,21 +8,21 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use velocitas_fix::engine::{EngineContext, FixApp, FixEngine};
-use velocitas_fix::message::MessageView;
-use velocitas_fix::serializer;
-use velocitas_fix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use velocitas_fix::tags;
-use velocitas_fix::timestamp::{HrTimestamp, TimestampSource};
-use velocitas_fix::transport::Transport;
-use velocitas_fix::transport::TransportConfig;
-use velocitas_fix::transport_tcp::StdTcpTransport;
+use nanofix::engine::{EngineContext, FixApp, FixEngine};
+use nanofix::message::MessageView;
+use nanofix::serializer;
+use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
+use nanofix::tags;
+use nanofix::timestamp::{HrTimestamp, TimestampSource};
+use nanofix::transport::Transport;
+use nanofix::transport::TransportConfig;
+use nanofix::transport_tcp::StdTcpTransport;
 
 fn main() {
     let count = parse_count();
 
     println!("╔══════════════════════════════════════════════════════════════════╗");
-    println!("║         Velocitas FIX Engine — TCP Round-Trip Benchmark         ║");
+    println!("║         nanofix — TCP Round-Trip Benchmark         ║");
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();
     println!("  Messages: {count}");

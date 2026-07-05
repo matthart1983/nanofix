@@ -1,9 +1,9 @@
 /// BM-06/07: Session Establishment and Gap Fill Benchmarks
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Duration;
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::serializer;
-use velocitas_fix::session::{
+use nanofix::parser::FixParser;
+use nanofix::serializer;
+use nanofix::session::{
     SequenceResetPolicy, Session, SessionConfig, SessionRole, SessionState,
 };
 

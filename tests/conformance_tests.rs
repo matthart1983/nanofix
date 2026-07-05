@@ -1,11 +1,11 @@
-use velocitas_fix::checksum;
+use nanofix::checksum;
 /// FIX Protocol Conformance Tests
 ///
 /// Validates compliance with the FIX 4.4 specification requirements.
 /// These tests use pre-built wire-format messages to verify correct parsing
 /// of real-world FIX message patterns.
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::tags;
+use nanofix::parser::FixParser;
+use nanofix::tags;
 
 /// Helper: build a raw FIX message from body fields, computing correct
 /// BodyLength and Checksum.

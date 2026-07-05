@@ -69,7 +69,7 @@ impl TransportConfig {
     /// Shared Aeron directory used by the default independent media driver path.
     pub fn default_aeron_dir() -> String {
         std::env::temp_dir()
-            .join("velocitas-fix-aeron")
+            .join("nanofix-aeron")
             .display()
             .to_string()
     }

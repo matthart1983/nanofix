@@ -1,5 +1,5 @@
 /// ╔══════════════════════════════════════════════════════════════════════╗
-/// ║                    VELOCITAS FIX ENGINE — DEMO                     ║
+/// ║                    NANOFIX FIX ENGINE — DEMO                     ║
 /// ║                                                                    ║
 /// ║  A comprehensive demonstration of all engine capabilities:         ║
 /// ║  parsing, serialization, sessions, SIMD, repeating groups,         ║
@@ -9,20 +9,20 @@
 use std::thread;
 use std::time::{Duration, Instant};
 
-use velocitas_fix::acceptor::{Acceptor, AcceptorConfig};
-use velocitas_fix::cluster::{ClusterConfig, ClusterNode, NodeId, ReplicatedSessionState};
-use velocitas_fix::dashboard::{Dashboard, DashboardConfig, HealthStatus, SessionStatus};
-use velocitas_fix::dict_compiler::{CompiledDictionary, TEST_DICTIONARY_XML};
-use velocitas_fix::fixt::{ApplVerID, FixtSession, FixtSessionConfig};
-use velocitas_fix::journal::{session_hash, Journal, SyncPolicy};
-use velocitas_fix::metrics::EngineMetrics;
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::pool::BufferPool;
-use velocitas_fix::serializer;
-use velocitas_fix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use velocitas_fix::simd;
-use velocitas_fix::tags;
-use velocitas_fix::timestamp::{HrClock, HrTimestamp, LatencyTracker, TimestampSource};
+use nanofix::acceptor::{Acceptor, AcceptorConfig};
+use nanofix::cluster::{ClusterConfig, ClusterNode, NodeId, ReplicatedSessionState};
+use nanofix::dashboard::{Dashboard, DashboardConfig, HealthStatus, SessionStatus};
+use nanofix::dict_compiler::{CompiledDictionary, TEST_DICTIONARY_XML};
+use nanofix::fixt::{ApplVerID, FixtSession, FixtSessionConfig};
+use nanofix::journal::{session_hash, Journal, SyncPolicy};
+use nanofix::metrics::EngineMetrics;
+use nanofix::parser::FixParser;
+use nanofix::pool::BufferPool;
+use nanofix::serializer;
+use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
+use nanofix::simd;
+use nanofix::tags;
+use nanofix::timestamp::{HrClock, HrTimestamp, LatencyTracker, TimestampSource};
 
 // ═══════════════════════════════════════════════════════════════════════
 // Helpers
@@ -71,7 +71,7 @@ fn main() {
         "{BOLD}{CYAN}╔══════════════════════════════════════════════════════════════════╗{RESET}"
     );
     println!(
-        "{BOLD}{CYAN}║              ⚡  VELOCITAS FIX ENGINE  v{}               ║{RESET}",
+        "{BOLD}{CYAN}║              ⚡  NANOFIX FIX ENGINE  v{}               ║{RESET}",
         env!("CARGO_PKG_VERSION")
     );
     println!(
@@ -166,7 +166,7 @@ fn demo_parse_serialize() {
         "Side",
         &format!(
             "{:?}",
-            velocitas_fix::Side::from_byte(view.get_field(tags::SIDE).unwrap()[0]).unwrap()
+            nanofix::Side::from_byte(view.get_field(tags::SIDE).unwrap()[0]).unwrap()
         ),
     );
     result(
@@ -499,7 +499,7 @@ fn demo_memory_pool() {
     step("Allocate → write → read → deallocate cycle");
     let handle = pool.allocate().unwrap();
     let buf = pool.get_mut(handle);
-    let msg = b"Hello from Velocitas!";
+    let msg = b"Hello from nanofix!";
     buf[..msg.len()].copy_from_slice(msg);
     let read_back = std::str::from_utf8(&pool.get(handle)[..msg.len()]).unwrap();
     result(
@@ -533,7 +533,7 @@ fn demo_memory_pool() {
 fn demo_journal() {
     header("6. MEMORY-MAPPED JOURNAL");
 
-    let path = std::env::temp_dir().join("velocitas-demo-journal.dat");
+    let path = std::env::temp_dir().join("nanofix-demo-journal.dat");
     let _ = std::fs::remove_file(&path);
 
     step(&format!("Opening journal: {}", path.display()));
@@ -693,7 +693,7 @@ fn demo_repeating_groups() {
     step("Parsing MarketData with 3 repeating group entries");
     step("  (NoMDEntries=3, each with MDEntryType, MDEntryPx, MDEntrySize)");
 
-    let group_def = velocitas_fix::groups::md_entries_group();
+    let group_def = nanofix::groups::md_entries_group();
     result(
         "Group definition",
         &format!(
@@ -706,7 +706,7 @@ fn demo_repeating_groups() {
     // Show available predefined groups
     separator();
     step("Pre-defined group definitions");
-    let legs = velocitas_fix::groups::legs_group();
+    let legs = nanofix::groups::legs_group();
     result(
         "NoLegs(555)",
         &format!(
@@ -714,7 +714,7 @@ fn demo_repeating_groups() {
             legs.delimiter_tag, legs.member_tags
         ),
     );
-    let fills = velocitas_fix::groups::fills_group();
+    let fills = nanofix::groups::fills_group();
     result(
         "NoFills(1362)",
         &format!(

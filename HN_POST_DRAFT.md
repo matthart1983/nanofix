@@ -1,10 +1,10 @@
-# Draft: Show HN / r/rust post — Velocitas FIX Engine
+# Draft: Show HN / r/rust post — nanofix
 
 ---
 
 ## Option A — Show HN
 
-**Title:** Show HN: Velocitas – a zero-allocation FIX protocol engine in Rust (2.26M msg/s, 28ns serialize)
+**Title:** Show HN: nanofix – a zero-allocation FIX protocol engine in Rust (2.26M msg/s, 28ns serialize)
 
 **Body:**
 
@@ -43,7 +43,7 @@ Happy to talk through any of the design choices — particularly the Aeron integ
 
 **Body:**
 
-Built Velocitas, a FIX engine for institutional trading infrastructure. Here's what made it interesting from a Rust perspective:
+Built nanofix, a FIX engine for institutional trading infrastructure. Here's what made it interesting from a Rust perspective:
 
 **Zero-alloc hot path**
 

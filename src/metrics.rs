@@ -1,4 +1,4 @@
-/// Prometheus-compatible metrics exporter for the Velocitas FIX engine.
+/// Prometheus-compatible metrics exporter for the nanofix FIX engine.
 ///
 /// All counters and gauges are lock-free using atomics. Histograms use an HDR
 /// histogram behind a `Mutex` (only acquired on reads / resets, never on the
@@ -316,60 +316,60 @@ impl EngineMetrics {
     pub fn new() -> Self {
         Self {
             messages_parsed: Counter::new(
-                "velocitas_messages_parsed_total",
+                "nanofix_messages_parsed_total",
                 "Total FIX messages parsed",
             ),
-            messages_sent: Counter::new("velocitas_messages_sent_total", "Total FIX messages sent"),
+            messages_sent: Counter::new("nanofix_messages_sent_total", "Total FIX messages sent"),
             messages_rejected: Counter::new(
-                "velocitas_messages_rejected_total",
+                "nanofix_messages_rejected_total",
                 "Total FIX messages rejected",
             ),
 
             active_sessions: Gauge::new(
-                "velocitas_active_sessions",
+                "nanofix_active_sessions",
                 "Number of active FIX sessions",
             ),
             pending_resends: Gauge::new(
-                "velocitas_pending_resends",
+                "nanofix_pending_resends",
                 "Number of pending resend requests",
             ),
 
             parse_latency_ns: LatencyHistogram::new(
-                "velocitas_parse_latency_ns",
+                "nanofix_parse_latency_ns",
                 "Parse latency in nanoseconds",
                 MAX_LATENCY_NS,
             ),
             serialize_latency_ns: LatencyHistogram::new(
-                "velocitas_serialize_latency_ns",
+                "nanofix_serialize_latency_ns",
                 "Serialize latency in nanoseconds",
                 MAX_LATENCY_NS,
             ),
             wire_to_wire_latency_ns: LatencyHistogram::new(
-                "velocitas_wire_to_wire_latency_ns",
+                "nanofix_wire_to_wire_latency_ns",
                 "Wire-to-wire latency in nanoseconds",
                 MAX_LATENCY_NS,
             ),
 
             journal_writes: Counter::new(
-                "velocitas_journal_writes_total",
+                "nanofix_journal_writes_total",
                 "Total journal write operations",
             ),
             journal_write_latency_ns: LatencyHistogram::new(
-                "velocitas_journal_write_latency_ns",
+                "nanofix_journal_write_latency_ns",
                 "Journal write latency in nanoseconds",
                 MAX_LATENCY_NS,
             ),
 
             risk_checks_passed: Counter::new(
-                "velocitas_risk_checks_passed_total",
+                "nanofix_risk_checks_passed_total",
                 "Total risk checks that passed",
             ),
             risk_checks_blocked: Counter::new(
-                "velocitas_risk_checks_blocked_total",
+                "nanofix_risk_checks_blocked_total",
                 "Total risk checks that blocked an order",
             ),
             kill_switch_activations: Counter::new(
-                "velocitas_kill_switch_activations_total",
+                "nanofix_kill_switch_activations_total",
                 "Total kill-switch activations",
             ),
         }
@@ -556,20 +556,20 @@ mod tests {
         let output = m.render_prometheus();
 
         // Counter lines
-        assert!(output.contains("# HELP velocitas_messages_parsed_total Total FIX messages parsed"));
-        assert!(output.contains("# TYPE velocitas_messages_parsed_total counter"));
-        assert!(output.contains("velocitas_messages_parsed_total 12345"));
+        assert!(output.contains("# HELP nanofix_messages_parsed_total Total FIX messages parsed"));
+        assert!(output.contains("# TYPE nanofix_messages_parsed_total counter"));
+        assert!(output.contains("nanofix_messages_parsed_total 12345"));
 
         // Gauge lines
-        assert!(output.contains("# TYPE velocitas_active_sessions gauge"));
-        assert!(output.contains("velocitas_active_sessions 3"));
+        assert!(output.contains("# TYPE nanofix_active_sessions gauge"));
+        assert!(output.contains("nanofix_active_sessions 3"));
 
         // Histogram summary lines
-        assert!(output.contains("# HELP velocitas_parse_latency_ns Parse latency in nanoseconds"));
-        assert!(output.contains("# TYPE velocitas_parse_latency_ns summary"));
-        assert!(output.contains("velocitas_parse_latency_ns{quantile=\"0.5\"}"));
-        assert!(output.contains("velocitas_parse_latency_ns{quantile=\"0.99\"}"));
-        assert!(output.contains("velocitas_parse_latency_ns_count 3"));
+        assert!(output.contains("# HELP nanofix_parse_latency_ns Parse latency in nanoseconds"));
+        assert!(output.contains("# TYPE nanofix_parse_latency_ns summary"));
+        assert!(output.contains("nanofix_parse_latency_ns{quantile=\"0.5\"}"));
+        assert!(output.contains("nanofix_parse_latency_ns{quantile=\"0.99\"}"));
+        assert!(output.contains("nanofix_parse_latency_ns_count 3"));
     }
 
     #[test]

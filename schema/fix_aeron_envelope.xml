@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
-                   package="velocitas.fix.sbe"
+                   package="nanofix.fix.sbe"
                    id="9001"
                    version="1"
                    semanticVersion="1.0.0"
-                   description="Velocitas FIX Aeron transport and internal business messages"
+                   description="nanofix FIX Aeron transport and internal business messages"
                    byteOrder="littleEndian">
     <types>
         <type name="timestampNs" primitiveType="uint64" semanticType="UTCTimestamp"/>

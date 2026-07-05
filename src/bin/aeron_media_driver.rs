@@ -10,7 +10,7 @@ use std::thread;
 use std::time::Duration;
 
 use aeron_c::{AeronError, AeronErrorKind, EmbeddedMediaDriver};
-use velocitas_fix::transport::TransportConfig;
+use nanofix::transport::TransportConfig;
 
 fn invalid_input(error: impl std::fmt::Display) -> io::Error {
     io::Error::new(io::ErrorKind::InvalidInput, error.to_string())

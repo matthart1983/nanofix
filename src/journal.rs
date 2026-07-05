@@ -195,7 +195,7 @@ mod tests {
     use std::fs;
 
     fn temp_journal_path(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join("velocitas-tests");
+        let dir = std::env::temp_dir().join("nanofix-tests");
         fs::create_dir_all(&dir).unwrap();
         dir.join(name)
     }

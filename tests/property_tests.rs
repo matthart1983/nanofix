@@ -1,4 +1,4 @@
-/// Property-based tests for the Velocitas FIX Engine.
+/// Property-based tests for the nanofix.
 ///
 /// Uses proptest to generate random FIX messages and verify invariants:
 /// - Every serialized message can be parsed back
@@ -6,9 +6,9 @@
 /// - Field values survive the roundtrip intact
 /// - Parser never panics on arbitrary input
 use proptest::prelude::*;
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::serializer;
-use velocitas_fix::tags;
+use nanofix::parser::FixParser;
+use nanofix::serializer;
+use nanofix::tags;
 
 /// Strategy for generating valid CompIDs (alphanumeric, 1–16 chars).
 fn comp_id_strategy() -> impl Strategy<Value = Vec<u8>> {
@@ -197,7 +197,7 @@ proptest! {
     fn prop_session_sequence_monotonic(
         msg_count in 1usize..10_000,
     ) {
-        use velocitas_fix::session::*;
+        use nanofix::session::*;
 
         let config = SessionConfig {
             session_id: "PROP".to_string(),

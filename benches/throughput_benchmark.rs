@@ -3,9 +3,9 @@
 /// Measures maximum message processing rate and behavior under burst load.
 use criterion::{black_box, criterion_group, criterion_main, Criterion, Throughput};
 use std::time::Instant;
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::pool::BufferPool;
-use velocitas_fix::serializer;
+use nanofix::parser::FixParser;
+use nanofix::pool::BufferPool;
+use nanofix::serializer;
 
 /// Pre-generate a large batch of FIX messages for throughput testing.
 fn gen_nos_batch(count: usize) -> Vec<Vec<u8>> {

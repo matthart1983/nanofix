@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">⚡ Velocitas FIX Engine</h1>
+  <h1 align="center">⚡ nanofix</h1>
   <p align="center">
     <strong>Ultra-low-latency FIX protocol engine for institutional trading</strong>
   </p>
@@ -11,10 +11,10 @@
 ---
 
 <p align="center">
-  <img src="demo.gif" alt="Velocitas FIX Engine Demo" width="800">
+  <img src="demo.gif" alt="nanofix Demo" width="800">
 </p>
 
-Velocitas is a **deterministic, zero-allocation FIX protocol engine** written in Rust, designed for the electronic trading infrastructure of tier-1 investment banks. It achieves sub-microsecond message parsing, single-digit microsecond wire-to-wire latency, and sustained throughput exceeding 2 million messages per second per core on Apple Silicon — benchmarked at **29× faster serialization** and **1.5–2.2× faster parsing** than QuickFIX/J. Aeron IPC is the standard/default colocated integration path, while TCP remains available for venue and counterparty connectivity.
+nanofix is a **deterministic, zero-allocation FIX protocol engine** written in Rust, designed for the electronic trading infrastructure of tier-1 investment banks. It achieves sub-microsecond message parsing, single-digit microsecond wire-to-wire latency, and sustained throughput exceeding 2 million messages per second per core on Apple Silicon — benchmarked at **29× faster serialization** and **1.5–2.2× faster parsing** than QuickFIX/J. Aeron IPC is the standard/default colocated integration path, while TCP remains available for venue and counterparty connectivity.
 
 ## Highlights
 
@@ -66,7 +66,7 @@ All numbers measured on Apple Silicon (M-series) using Criterion.rs. See [BENCHM
 
 ### vs QuickFIX/J (same methodology, 1M iterations each)
 
-| Benchmark | Velocitas | QuickFIX/J | Speedup |
+| Benchmark | nanofix | QuickFIX/J | Speedup |
 |---|---|---|---|
 | Serialize NOS | **32 ns** | 917 ns | **29× faster** |
 | Parse NOS | **532 ns** | 796 ns | **1.5× faster** |
@@ -77,7 +77,7 @@ All numbers measured on Apple Silicon (M-series) using Criterion.rs. See [BENCHM
 
 ### TCP Round-Trip (NOS → ExecRpt over localhost)
 
-| Metric | Velocitas | QuickFIX/J | Speedup |
+| Metric | nanofix | QuickFIX/J | Speedup |
 |---|---|---|---|
 | p50 latency | **15.6 µs** | 61.1 µs | **3.9×** |
 | p99 latency | **52.9 µs** | 342.7 µs | **6.5×** |
@@ -89,7 +89,7 @@ All numbers measured on Apple Silicon (M-series) using Criterion.rs. See [BENCHM
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                       Velocitas FIX Engine                       │
+│                       nanofix                       │
 ├─────────────┬──────────────┬──────────────┬─────────────────────┤
 │  Transport  │   Session    │   Message    │    Application      │
 │   Layer     │   Layer      │   Layer      │    Gateway          │
@@ -129,7 +129,7 @@ All numbers measured on Apple Silicon (M-series) using Criterion.rs. See [BENCHM
 ## Project Structure
 
 ```
-velocitas-fix-engine/
+nanofix/
 ├── SPECIFICATION.md          # Full 15-section technical specification
 ├── BENCHMARKS.md             # 10 benchmark definitions with methodology
 ├── Cargo.toml                # Rust project config with feature flags
@@ -224,7 +224,7 @@ cargo run --release --bin aeron_demo
 cargo run --release --bin aeron_demo benchmark
 
 # Optional: shared standalone Aeron media driver for multi-process setups
-cargo run --release --bin aeron_media_driver -- --aeron-dir /tmp/velocitas-fix-aeron
+cargo run --release --bin aeron_media_driver -- --aeron-dir /tmp/nanofix-aeron
 
 # Full engine capability demo
 cargo run --release --bin demo
@@ -273,7 +273,7 @@ Benchmark reports are generated in `target/criterion/` with interactive HTML cha
 #### QuickFIX/J Comparison
 
 ```bash
-# Run the Rust side (Velocitas)
+# Run the Rust side (nanofix)
 cargo run --release --bin bench_compare
 
 # Run the Java side (QuickFIX/J) — requires Gradle + JDK 17+
@@ -284,7 +284,7 @@ gradle run
 #### TCP Round-Trip Benchmark
 
 ```bash
-# Velocitas TCP benchmark (10k round-trips over localhost)
+# nanofix TCP benchmark (10k round-trips over localhost)
 cargo run --release --bin bench_tcp
 
 # QuickFIX/J TCP benchmark
@@ -297,8 +297,8 @@ gradle runTcp
 ### Parsing a FIX Message
 
 ```rust
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::tags;
+use nanofix::parser::FixParser;
+use nanofix::tags;
 
 let parser = FixParser::new(); // checksum + body length validation
 // let parser = FixParser::new_unchecked(); // max throughput, no validation
@@ -316,7 +316,7 @@ let seq = view.msg_seq_num();             // Some(42)
 ### Serializing a FIX Message
 
 ```rust
-use velocitas_fix::serializer;
+use nanofix::serializer;
 
 let mut buf = [0u8; 1024]; // pre-allocated, no heap
 
@@ -346,18 +346,18 @@ For a dedicated step-by-step setup guide, see [AERON.md](AERON.md).
 The default Aeron transport uses manual FFI wrappers over the official Aeron C client and media driver, wraps FIX payloads in an official SBE-generated Rust envelope, and publishes them onto the configured Aeron channel. The transport default expects a standalone media driver using the shared default Aeron directory, while embedded mode remains available as an explicit opt-in. The `aeron_demo` binary is friendlier for demos and automatically spawns its own standalone driver child process.
 
 ```rust
-use velocitas_fix::transport::{build_transport, TransportConfig};
+use nanofix::transport::{build_transport, TransportConfig};
 
 let mut acceptor = build_transport(TransportConfig {
     aeron_stream_id: 1001,
-    aeron_dir: Some("/tmp/velocitas-fix-aeron".into()),
+    aeron_dir: Some("/tmp/nanofix-aeron".into()),
     ..TransportConfig::default()
 })?;
 acceptor.bind("127.0.0.1", 0)?;
 
 let mut initiator = build_transport(TransportConfig {
     aeron_stream_id: 1001,
-    aeron_dir: Some("/tmp/velocitas-fix-aeron".into()),
+    aeron_dir: Some("/tmp/nanofix-aeron".into()),
     ..TransportConfig::default()
 })?;
 initiator.connect("127.0.0.1", 0)?;
@@ -369,7 +369,7 @@ initiator.connect("127.0.0.1", 0)?;
 ### Session Management
 
 ```rust
-use velocitas_fix::session::*;
+use nanofix::session::*;
 use std::time::Duration;
 
 let config = SessionConfig {
@@ -397,7 +397,7 @@ session.validate_inbound_seq(1).unwrap();  // Ok or Err(gap_range)
 ### Memory Pool
 
 ```rust
-use velocitas_fix::pool::BufferPool;
+use nanofix::pool::BufferPool;
 
 // Pre-allocate 1024 × 256-byte buffers (no allocation on hot path)
 let mut pool = BufferPool::new(256, 1024);
@@ -411,7 +411,7 @@ pool.deallocate(handle);                   // ~8 ns, lock-free
 ### Message Journal
 
 ```rust
-use velocitas_fix::journal::{Journal, SyncPolicy, session_hash};
+use nanofix::journal::{Journal, SyncPolicy, session_hash};
 
 let hash = session_hash("BANK_OMS", "NYSE");
 let mut journal = Journal::open(
@@ -430,8 +430,8 @@ assert_eq!(header.seq_num, 1);
 ### FIXT 1.1 / FIX 5.0 SP2 Sessions
 
 ```rust
-use velocitas_fix::fixt::*;
-use velocitas_fix::session::*;
+use nanofix::fixt::*;
+use nanofix::session::*;
 
 let config = FixtSessionConfig {
     base: SessionConfig { /* ... */ ..Default::default() },
@@ -448,7 +448,7 @@ assert_eq!(session.negotiated_version(), None);
 ### Repeating Groups
 
 ```rust
-use velocitas_fix::groups::*;
+use nanofix::groups::*;
 
 let group_def = md_entries_group(); // NoMDEntries(268)
 let group = RepeatingGroup::parse(buffer, &view.fields(), start_idx, &group_def)?;
@@ -463,7 +463,7 @@ for i in 0..group.count() {
 ### SIMD-Accelerated Parsing
 
 ```rust
-use velocitas_fix::simd;
+use nanofix::simd;
 
 // Finds SOH delimiters using NEON (ARM) or SSE2 (x86) — 16 bytes/cycle
 let pos = simd::find_soh(buffer);         // first SOH position
@@ -473,7 +473,7 @@ let count = simd::count_fields(buffer);   // total field count
 ### Prometheus Metrics
 
 ```rust
-use velocitas_fix::metrics::EngineMetrics;
+use nanofix::metrics::EngineMetrics;
 
 let metrics = EngineMetrics::new();
 metrics.messages_parsed.inc();
@@ -481,14 +481,14 @@ metrics.parse_latency_ns.record(280);
 
 // Render for Prometheus scraping
 let output = metrics.render_prometheus();
-// → velocitas_messages_parsed_total 1
-// → velocitas_parse_latency_ns{quantile="0.99"} 280
+// → nanofix_messages_parsed_total 1
+// → nanofix_parse_latency_ns{quantile="0.99"} 280
 ```
 
 ### Cluster (Active-Active HA)
 
 ```rust
-use velocitas_fix::cluster::*;
+use nanofix::cluster::*;
 
 let config = ClusterConfig::three_node(
     NodeId { id: 1, address: "10.0.1.1".into(), port: 9100 },
@@ -505,7 +505,7 @@ node.replicate_session_state(state); // Aeron-aligned Raft model
 ### XML Dictionary Compiler
 
 ```rust
-use velocitas_fix::dict_compiler::*;
+use nanofix::dict_compiler::*;
 
 let dict = CompiledDictionary::from_xml(xml_str)?;
 let field = dict.lookup_field(55);             // O(1) lookup → "Symbol"
@@ -518,8 +518,8 @@ let errors = dict.validate_message("D", &tags); // check required fields
 Use this when you explicitly want TCP socket ingress. For colocated application integration, use `FixEngine` with the default Aeron transport instead.
 
 ```rust
-use velocitas_fix::server::*;
-use velocitas_fix::engine::*;
+use nanofix::server::*;
+use nanofix::engine::*;
 
 let server = FixServer::new(FixServerConfig {
     port: 9878,
@@ -537,7 +537,7 @@ server.start(|| Box::new(MyApp)).unwrap();
 Use this when you explicitly want TCP socket egress. For colocated application integration, use `FixEngine` with the default Aeron transport instead.
 
 ```rust
-use velocitas_fix::client::*;
+use nanofix::client::*;
 
 let client = FixClient::new(FixClientConfig {
     remote_host: "10.0.1.50".into(),
@@ -554,7 +554,7 @@ client.connect_and_run(&mut MyApp::new()).unwrap();
 ### Hardware Timestamps
 
 ```rust
-use velocitas_fix::timestamp::*;
+use nanofix::timestamp::*;
 
 let clock = HrClock::new(TimestampSource::Tsc);
 let ts = clock.now();
@@ -568,7 +568,7 @@ let elapsed_ns = tracker.stop();
 ### Web Dashboard
 
 ```rust
-use velocitas_fix::dashboard::*;
+use nanofix::dashboard::*;
 
 let mut dashboard = Dashboard::new(DashboardConfig::default());
 dashboard.update_session(session_status);

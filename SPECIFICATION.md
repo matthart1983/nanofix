@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-This specification defines **Velocitas FIX Engine**, a deterministic, ultra-low-latency FIX protocol engine designed for use across all electronic trading desks of a large investment bank. The engine targets **sub-microsecond message parsing**, **single-digit microsecond end-to-end latency** (wire-to-wire), and **sustained throughput exceeding 2 million messages per second** per core — outperforming commercial offerings such as LSEG (Refinitiv) RASH, Onix Solutions OnixS, and Chronicle FIX.
+This specification defines **nanofix**, a deterministic, ultra-low-latency FIX protocol engine designed for use across all electronic trading desks of a large investment bank. The engine targets **sub-microsecond message parsing**, **single-digit microsecond end-to-end latency** (wire-to-wire), and **sustained throughput exceeding 2 million messages per second** per core — outperforming commercial offerings such as LSEG (Refinitiv) RASH, Onix Solutions OnixS, and Chronicle FIX.
 
 ---
 
@@ -17,7 +17,7 @@ This specification defines **Velocitas FIX Engine**, a deterministic, ultra-low-
 
 ### 2.1 Latency Targets
 
-| Metric | Velocitas Target | Industry Benchmark (Best Commercial) |
+| Metric | nanofix Target | Industry Benchmark (Best Commercial) |
 |---|---|---|
 | Message parse (NewOrderSingle) | ≤ 300 ns | ~800–1,200 ns |
 | Message serialize (ExecutionReport) | ≤ 250 ns | ~700–1,000 ns |
@@ -29,7 +29,7 @@ This specification defines **Velocitas FIX Engine**, a deterministic, ultra-low-
 
 ### 2.2 Throughput Targets
 
-| Metric | Velocitas Target | Industry Benchmark |
+| Metric | nanofix Target | Industry Benchmark |
 |---|---|---|
 | Sustained msg/s (single core) | ≥ 2,000,000 | ~500,000–800,000 |
 | Burst msg/s (10 ms window) | ≥ 5,000,000 | ~1,500,000 |
@@ -64,7 +64,7 @@ This specification defines **Velocitas FIX Engine**, a deterministic, ultra-low-
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                        Velocitas FIX Engine                       │
+│                        nanofix                       │
 ├─────────────┬──────────────┬──────────────┬─────────────────────┤
 │  Transport  │   Session    │   Message    │    Application      │
 │   Layer     │   Layer      │   Layer      │    Gateway          │

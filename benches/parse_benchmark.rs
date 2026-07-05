@@ -3,8 +3,8 @@
 /// Measures the time to parse FIX messages of various sizes using Criterion.
 /// Compares against industry benchmark targets from BENCHMARKS.md.
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use velocitas_fix::parser::FixParser;
-use velocitas_fix::serializer;
+use nanofix::parser::FixParser;
+use nanofix::serializer;
 
 /// Generate a valid FIX Heartbeat message.
 fn gen_heartbeat() -> Vec<u8> {

@@ -5,21 +5,21 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-use velocitas_fix::engine::{EngineContext, FixApp, FixEngine};
-use velocitas_fix::message::MessageView;
-use velocitas_fix::serializer;
-use velocitas_fix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use velocitas_fix::tags;
-use velocitas_fix::timestamp::{HrTimestamp, TimestampSource};
-use velocitas_fix::transport::{build_transport, TransportConfig};
+use nanofix::engine::{EngineContext, FixApp, FixEngine};
+use nanofix::message::MessageView;
+use nanofix::serializer;
+use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
+use nanofix::tags;
+use nanofix::timestamp::{HrTimestamp, TimestampSource};
+use nanofix::transport::{build_transport, TransportConfig};
 
 static NEXT_STREAM_ID: AtomicI32 = AtomicI32::new(30_000);
 
 #[test]
 fn test_aeron_is_the_default_end_to_end_integration_path() {
     let stream_id = NEXT_STREAM_ID.fetch_add(2, Ordering::Relaxed);
-    let aeron_dir = std::env::temp_dir().join(format!("velocitas-fix-test-{stream_id}"));
-    let ready_file = std::env::temp_dir().join(format!("velocitas-fix-test-ready-{stream_id}"));
+    let aeron_dir = std::env::temp_dir().join(format!("nanofix-test-{stream_id}"));
+    let ready_file = std::env::temp_dir().join(format!("nanofix-test-ready-{stream_id}"));
     let _ = std::fs::remove_dir_all(&aeron_dir);
     let _ = std::fs::remove_file(&ready_file);
 

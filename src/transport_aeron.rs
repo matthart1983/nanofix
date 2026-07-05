@@ -23,7 +23,7 @@ fn default_embedded_dir() -> String {
     DEFAULT_EMBEDDED_DIR
         .get_or_init(|| {
             std::env::temp_dir()
-                .join(format!("velocitas-fix-aeron-{}", std::process::id()))
+                .join(format!("nanofix-aeron-{}", std::process::id()))
                 .display()
                 .to_string()
         })
@@ -305,7 +305,7 @@ mod tests {
     fn test_config() -> (TransportConfig, Arc<EmbeddedMediaDriver>) {
         let stream_id = NEXT_STREAM_ID.fetch_add(2, Ordering::Relaxed);
         let aeron_dir = std::env::temp_dir()
-            .join(format!("velocitas-fix-transport-test-{stream_id}"))
+            .join(format!("nanofix-transport-test-{stream_id}"))
             .display()
             .to_string();
         let driver = EmbeddedMediaDriver::shared(&aeron_dir, true).unwrap();
@@ -375,12 +375,12 @@ mod tests {
     fn test_aeron_transport_uses_explicit_channel() {
         let stream_id = NEXT_STREAM_ID.fetch_add(2, Ordering::Relaxed);
         let aeron_dir = std::env::temp_dir()
-            .join(format!("velocitas-fix-transport-test-{stream_id}"))
+            .join(format!("nanofix-transport-test-{stream_id}"))
             .display()
             .to_string();
         let _driver = EmbeddedMediaDriver::shared(&aeron_dir, true).unwrap();
         let config = TransportConfig {
-            aeron_channel: Some(format!("aeron:ipc?alias=velocitas-fix-{stream_id}")),
+            aeron_channel: Some(format!("aeron:ipc?alias=nanofix-{stream_id}")),
             aeron_stream_id: stream_id,
             aeron_dir: Some(aeron_dir),
             aeron_embedded_driver: false,

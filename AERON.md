@@ -1,6 +1,6 @@
 # Aeron Integration Guide
 
-This is the standard integration path for Velocitas.
+This is the standard integration path for nanofix.
 
 Use Aeron when you are wiring colocated services into the FIX engine. Use the TCP client/server wrappers only when you explicitly need socket-based venue or counterparty connectivity.
 
@@ -46,7 +46,7 @@ cargo run --release --bin aeron_demo benchmark
 If you want to run a shared standalone media driver yourself, start it explicitly:
 
 ```bash
-cargo run --release --bin aeron_media_driver -- --aeron-dir /tmp/velocitas-fix-aeron
+cargo run --release --bin aeron_media_driver -- --aeron-dir /tmp/nanofix-aeron
 ```
 
 Run the focused Aeron end-to-end regression test:
@@ -67,7 +67,7 @@ These are the important defaults from `TransportConfig`:
 
 The `aeron_demo` binary is intentionally more ergonomic than the raw transport default: it spawns a standalone media-driver child process automatically so the end-to-end example works as a single command.
 
-The transport envelope schema lives in `schema/fix_aeron_envelope.xml`, and the Rust bindings are generated with the official `aeron-io/simple-binary-encoding` Rust generator into `generated/rust/velocitas_fix_sbe`.
+The transport envelope schema lives in `schema/fix_aeron_envelope.xml`, and the Rust bindings are generated with the official `aeron-io/simple-binary-encoding` Rust generator into `generated/rust/nanofix_sbe`.
 
 The configured stream ID is the base request stream. The paired transport uses the next stream ID for replies on the same Aeron channel.
 
@@ -94,14 +94,14 @@ The simplest setup is:
 use std::io;
 use std::time::Duration;
 
-use velocitas_fix::engine::{FixApp, FixEngine};
-use velocitas_fix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use velocitas_fix::transport::{build_transport, TransportConfig};
+use nanofix::engine::{FixApp, FixEngine};
+use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
+use nanofix::transport::{build_transport, TransportConfig};
 
-fn build_acceptor() -> io::Result<FixEngine<Box<dyn velocitas_fix::transport::Transport>>> {
+fn build_acceptor() -> io::Result<FixEngine<Box<dyn nanofix::transport::Transport>>> {
     let mut transport = build_transport(TransportConfig {
         aeron_stream_id: 1001,
-        aeron_dir: Some("/tmp/velocitas-fix-aeron".into()),
+        aeron_dir: Some("/tmp/nanofix-aeron".into()),
         ..TransportConfig::default()
     })?;
     transport.bind("127.0.0.1", 0)?;
@@ -123,10 +123,10 @@ fn build_acceptor() -> io::Result<FixEngine<Box<dyn velocitas_fix::transport::Tr
     Ok(FixEngine::new_acceptor(transport, session))
 }
 
-fn build_initiator() -> io::Result<FixEngine<Box<dyn velocitas_fix::transport::Transport>>> {
+fn build_initiator() -> io::Result<FixEngine<Box<dyn nanofix::transport::Transport>>> {
     let mut transport = build_transport(TransportConfig {
         aeron_stream_id: 1001,
-        aeron_dir: Some("/tmp/velocitas-fix-aeron".into()),
+        aeron_dir: Some("/tmp/nanofix-aeron".into()),
         ..TransportConfig::default()
     })?;
     transport.connect("127.0.0.1", 0)?;
@@ -180,7 +180,7 @@ Use the TCP wrappers when you need:
 In that case, opt in explicitly:
 
 ```rust
-use velocitas_fix::transport::TransportConfig;
+use nanofix::transport::TransportConfig;
 
 let tcp = TransportConfig::kernel_tcp();
 ```
@@ -191,7 +191,7 @@ let tcp = TransportConfig::kernel_tcp();
 - `src/transport_aeron.rs` — Aeron transport backend
 - `src/aeron_sbe.rs` — SBE envelope encode/decode helpers
 - `schema/fix_aeron_envelope.xml` — Aeron transport SBE schema
-- `generated/rust/velocitas_fix_sbe` — official generated Rust SBE bindings
+- `generated/rust/nanofix_sbe` — official generated Rust SBE bindings
 - `src/engine.rs` — acceptor/initiator engine behavior
 - `src/bin/aeron_demo.rs` — runnable end-to-end Aeron example
 - `tests/aeron_integration.rs` — focused regression coverage

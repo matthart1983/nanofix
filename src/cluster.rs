@@ -53,7 +53,7 @@ impl Default for ClusterConfig {
             election_timeout_ms: 300,
             heartbeat_interval_ms: 100,
             snapshot_interval_msgs: 10_000,
-            log_dir: "/tmp/velocitas-cluster".to_string(),
+            log_dir: "/tmp/nanofix-cluster".to_string(),
         }
     }
 }

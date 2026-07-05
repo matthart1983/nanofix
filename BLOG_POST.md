@@ -1,8 +1,8 @@
-# Velocitas FIX vs Artio vs QuickFIX/J: A Three-Way Latency Shootout on a Realistic Trading Topology
+# nanofix FIX vs Artio vs QuickFIX/J: A Three-Way Latency Shootout on a Realistic Trading Topology
 
 Most FIX engine benchmarks lie. They measure `parse(bytes) → Message` in a tight loop and call it a day — no network, no IPC, no executor, no back-pressure. That tells you almost nothing about how the engine performs inside a real trading system, where a message has to cross TCP from a venue, get normalized, hand off to an execution engine over a shared-memory ringbuffer, come back, and be serialized back out to the wire.
 
-So I built the real thing — three times. Once in Rust using the [Velocitas FIX engine](https://github.com/). Once in Java using [QuickFIX/J](https://www.quickfixj.org/), the de-facto open-source Java FIX engine. And once using [Artio](https://github.com/real-logic/artio), Real Logic's Aeron-native FIX engine built by the same team behind [Aeron](https://github.com/real-logic/aeron) itself. Same topology, same pipeline, same workload, five runs each. Here's what happened.
+So I built the real thing — three times. Once in Rust using the [nanofix FIX engine](https://github.com/). Once in Java using [QuickFIX/J](https://www.quickfixj.org/), the de-facto open-source Java FIX engine. And once using [Artio](https://github.com/real-logic/artio), Real Logic's Aeron-native FIX engine built by the same team behind [Aeron](https://github.com/real-logic/aeron) itself. Same topology, same pipeline, same workload, five runs each. Here's what happened.
 
 ## The topology
 
@@ -57,7 +57,7 @@ That got Artio's p99.9 from 4,231 µs to 189 µs — a **22× tail improvement**
 
 100,000 measured round-trips × 5 runs, same hardware, same session:
 
-| Metric       | **Velocitas (Rust)** | **Artio (Java)** | **QuickFIX/J (Java)** |
+| Metric       | **nanofix (Rust)** | **Artio (Java)** | **QuickFIX/J (Java)** |
 |--------------|---------------------:|-----------------:|----------------------:|
 | min          |          **11.7 µs** |          36.9 µs |              37.0 µs  |
 | p50          |          **20.1 µs** |          78.5 µs |              50.6 µs  |
@@ -84,7 +84,7 @@ On localhost those hops are pure overhead — ~30 µs of extra latency at p50. B
 
 QuickFIX/J is the opposite: simple and direct (the session is the thread, writes go straight to TCP), which wins at median, but every message parse creates a `Message` object graph that the GC eventually has to clean up. That's why QFJ's `max` is 4 ms — somewhere in the measured window a young-gen collection happened.
 
-**Velocitas Rust avoids both problems.** No engine/library split, so no fixed IPC tax at median. No GC, so no worst-case cleanup pause. Just a tight hot path that allocates nothing after startup.
+**nanofix Rust avoids both problems.** No engine/library split, so no fixed IPC tax at median. No GC, so no worst-case cleanup pause. Just a tight hot path that allocates nothing after startup.
 
 ## Run-to-run variance
 
@@ -106,15 +106,15 @@ One run is a data point. Five runs tell you whether the data point was real.
 
 The usual "Rust is faster than Java" story is about JIT warmup, GC pauses, and bounds checks. That's all true but the specifics matter:
 
-**1. No GC means no worst-case pauses — except the tail.** Rust's `max` is worse than Artio's because of macOS scheduler jitter on busy-spin threads, not GC. Artio's `max` is better because its engine/library split isolates I/O from allocation. Pick your poison: scheduler noise or GC noise. Velocitas wins everywhere except the single worst sample.
+**1. No GC means no worst-case pauses — except the tail.** Rust's `max` is worse than Artio's because of macOS scheduler jitter on busy-spin threads, not GC. Artio's `max` is better because its engine/library split isolates I/O from allocation. Pick your poison: scheduler noise or GC noise. nanofix wins everywhere except the single worst sample.
 
-**2. FIX parsing cost.** QuickFIX/J parses into a full `Message` object graph even with validation off. Artio parses into a zero-copy decoder wrapping an `AsciiBuffer`. Velocitas parses into a zero-copy `MessageView` that hands out `&[u8]` slices on demand. Decoder-to-decoder, Velocitas and Artio are close. But QuickFIX/J is carrying object-construction overhead on every message.
+**2. FIX parsing cost.** QuickFIX/J parses into a full `Message` object graph even with validation off. Artio parses into a zero-copy decoder wrapping an `AsciiBuffer`. nanofix parses into a zero-copy `MessageView` that hands out `&[u8]` slices on demand. Decoder-to-decoder, nanofix and Artio are close. But QuickFIX/J is carrying object-construction overhead on every message.
 
-**3. No virtual dispatch on the hot path.** `FixApp` in Velocitas is a `&mut dyn` trait object called once per message. Artio's `SessionHandler.onMessage` is also once per message. QFJ's `MessageCracker` does a HashMap lookup per field.
+**3. No virtual dispatch on the hot path.** `FixApp` in nanofix is a `&mut dyn` trait object called once per message. Artio's `SessionHandler.onMessage` is also once per message. QFJ's `MessageCracker` does a HashMap lookup per field.
 
-**4. Architecture.** Velocitas writes directly from the caller thread to TCP. QuickFIX/J does the same. Artio goes through Aeron both ways. In this benchmark (localhost, one session) direct wins; in a production multi-session deployment, Aeron pipelining wins.
+**4. Architecture.** nanofix writes directly from the caller thread to TCP. QuickFIX/J does the same. Artio goes through Aeron both ways. In this benchmark (localhost, one session) direct wins; in a production multi-session deployment, Aeron pipelining wins.
 
-**5. Aeron binding.** Velocitas uses `aeron_c` (the C driver client) directly over FFI. Both Java engines use the native Agrona/Aeron client. Both are fast, but the Rust FFI path has slightly less overhead per publish.
+**5. Aeron binding.** nanofix uses `aeron_c` (the C driver client) directly over FFI. Both Java engines use the native Agrona/Aeron client. Both are fast, but the Rust FFI path has slightly less overhead per publish.
 
 **6. TCP syscall cost is identical** across all three. Both sides do the same `write()` / `read()` dance on localhost TCP with `TCP_NODELAY`. That's the floor — the deltas above are *codec and runtime* deltas, not transport deltas.
 
@@ -122,13 +122,13 @@ The usual "Rust is faster than Java" story is about JIT warmup, GC pauses, and b
 
 If you're building an order gateway, market data normalizer, or any hot-path component in a trading system, the engine you choose compounds every trade you handle:
 
-- **Velocitas (Rust)** if you want the fastest median and p99, don't mind budgeting for occasional scheduler jitter, and want a runtime with no GC to reason about. 2.5× faster than QuickFIX/J at p50, 3.9× faster than Artio at p50, and **p99.9 under 120 µs end-to-end** including TCP on both ends.
+- **nanofix (Rust)** if you want the fastest median and p99, don't mind budgeting for occasional scheduler jitter, and want a runtime with no GC to reason about. 2.5× faster than QuickFIX/J at p50, 3.9× faster than Artio at p50, and **p99.9 under 120 µs end-to-end** including TCP on both ends.
 
 - **Artio (Java)** if you run many concurrent FIX sessions, care about worst-case tail more than median, and have a team that already lives in the JVM ecosystem. The Aeron-based architecture pays off at scale and gives you the smoothest `max` of the three engines I tested. Just be prepared to audit every allocation on the hot path — Artio is fast but it's not automatic.
 
 - **QuickFIX/J (Java)** if you want maximum operational simplicity, JIT predictability, and a well-understood engine with twenty years of community history. It's the slowest median of the three, but it's also the most laser-consistent run to run — and "consistent and slightly slower" is often more valuable in production than "fast but variable."
 
-**Velocitas gives you a 2.5× latency improvement over QuickFIX/J and a 3.9× improvement over Artio on a realistic nine-step pipeline, with no allocations on the hot path, predictable latency, and a p99.9 under 120 µs end-to-end.** That's not a microbenchmark — that's the whole pipeline, including TCP on both ends, across five independent runs of 100,000 round-trips each.
+**nanofix gives you a 2.5× latency improvement over QuickFIX/J and a 3.9× improvement over Artio on a realistic nine-step pipeline, with no allocations on the hot path, predictable latency, and a p99.9 under 120 µs end-to-end.** That's not a microbenchmark — that's the whole pipeline, including TCP on both ends, across five independent runs of 100,000 round-trips each.
 
 The code for all three benchmarks is public. If you think I've rigged something, clone it and run it. If you find a way to make the Java sides faster, I want to see it — getting Artio down was a 22× tail improvement from allocation fixes alone, and I'd bet there's more to find.
 
@@ -149,4 +149,4 @@ Each run takes 5–25 seconds, prints the same format, and uses real TCP + real 
 
 ---
 
-*Velocitas FIX is a Rust FIX 4.4 engine built for ultra-low-latency trading infrastructure. Zero-allocation hot paths, pluggable transports, native SBE and Aeron integration.*
+*nanofix FIX is a Rust FIX 4.4 engine built for ultra-low-latency trading infrastructure. Zero-allocation hot paths, pluggable transports, native SBE and Aeron integration.*
