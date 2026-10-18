@@ -6,7 +6,7 @@ Use Aeron when you are wiring colocated services into the FIX engine. Use the TC
 
 ## What "Aeron" Means Here
 
-The crate exposes an `AeronTransport` backend and makes it the default transport selected by `TransportConfig::default()`.
+The `nanofix-aeron` crate provides the `AeronTransport` backend and a `build_transport` that builds it for `TransportMode::Aeron` (`TransportConfig::aeron_ipc(stream_id)`), and every other mode through the core `nanofix` crate.
 
 The current implementation uses direct Rust FFI bindings over the official Aeron C client and publishes each FIX wire message as an SBE envelope onto the configured Aeron channel.
 
@@ -21,14 +21,14 @@ Each FIX wire message is wrapped in one SBE envelope and sent as one Aeron messa
 
 Before building, provide either:
 
-- `AERON_SOURCE_DIR=/path/to/official/aeron` so `build.rs` can compile the C client and driver with CMake
+- `AERON_SOURCE_DIR=/path/to/official/aeron` (1.51 or later) so `build.rs` can compile the C client and driver with CMake 3.30+ and a C/C++ compiler
 - `AERON_LIB_DIR=/path/to/prebuilt/aeron/lib` to link against prebuilt `libaeron` and `libaeron_driver`
 
-Build the project with the default transport:
+Build the Aeron crate:
 
 ```bash
 export AERON_SOURCE_DIR=/path/to/aeron
-cargo build --release
+cargo build --release -p nanofix-aeron
 ```
 
 Run the self-contained Aeron demo:
@@ -52,14 +52,14 @@ cargo run --release --bin aeron_media_driver -- --aeron-dir /tmp/nanofix-aeron
 Run the focused Aeron end-to-end regression test:
 
 ```bash
-cargo test --test aeron_integration
+cargo test -p nanofix-aeron --test aeron_integration
 ```
 
 ## Default Behavior
 
 These are the important defaults from `TransportConfig`:
 
-- `TransportConfig::default()` selects `TransportMode::Aeron`
+- `TransportConfig::aeron_ipc(stream_id)` selects `TransportMode::Aeron` (`TransportConfig::default()` is kernel TCP)
 - the default channel is `aeron:ipc`
 - the default stream ID is `1001`
 - the default transport expects an independent media driver
@@ -67,7 +67,7 @@ These are the important defaults from `TransportConfig`:
 
 The `aeron_demo` binary is intentionally more ergonomic than the raw transport default: it spawns a standalone media-driver child process automatically so the end-to-end example works as a single command.
 
-The transport envelope schema lives in `schema/fix_aeron_envelope.xml`, and the Rust bindings are generated with the official `aeron-io/simple-binary-encoding` Rust generator into `generated/rust/nanofix_sbe`.
+The transport envelope schema lives in `crates/nanofix-sbe/schema/fix_aeron_envelope.xml`, and the Rust bindings are generated with the official `aeron-io/simple-binary-encoding` Rust generator into the `nanofix-sbe` crate (`scripts/generate_sbe_bindings.sh`).
 
 The configured stream ID is the base request stream. The paired transport uses the next stream ID for replies on the same Aeron channel.
 
@@ -96,13 +96,13 @@ use std::time::Duration;
 
 use nanofix::engine::{FixApp, FixEngine};
 use nanofix::session::{SequenceResetPolicy, Session, SessionConfig, SessionRole};
-use nanofix::transport::{build_transport, TransportConfig};
+use nanofix::transport::TransportConfig;
+use nanofix_aeron::build_transport;
 
 fn build_acceptor() -> io::Result<FixEngine<Box<dyn nanofix::transport::Transport>>> {
     let mut transport = build_transport(TransportConfig {
-        aeron_stream_id: 1001,
         aeron_dir: Some("/tmp/nanofix-aeron".into()),
-        ..TransportConfig::default()
+        ..TransportConfig::aeron_ipc(1001)
     })?;
     transport.bind("127.0.0.1", 0)?;
 
@@ -125,9 +125,8 @@ fn build_acceptor() -> io::Result<FixEngine<Box<dyn nanofix::transport::Transpor
 
 fn build_initiator() -> io::Result<FixEngine<Box<dyn nanofix::transport::Transport>>> {
     let mut transport = build_transport(TransportConfig {
-        aeron_stream_id: 1001,
         aeron_dir: Some("/tmp/nanofix-aeron".into()),
-        ..TransportConfig::default()
+        ..TransportConfig::aeron_ipc(1001)
     })?;
     transport.connect("127.0.0.1", 0)?;
 
@@ -163,7 +162,7 @@ That means Aeron integrations can stay entirely on the `FixEngine` API without g
 For most local application integrations:
 
 1. Keep your business logic in a `FixApp` implementation.
-2. Use `build_transport(TransportConfig::default())` or `aeron_ipc(stream_id)`.
+2. Use `nanofix_aeron::build_transport(TransportConfig::aeron_ipc(stream_id))`.
 3. Construct `FixEngine` directly.
 4. Reserve `FixClient` and `FixServer` for TCP edge connections.
 
@@ -187,11 +186,12 @@ let tcp = TransportConfig::kernel_tcp();
 
 ## Reference Files
 
-- `src/transport.rs` — transport defaults, modes, and factory
-- `src/transport_aeron.rs` — Aeron transport backend
-- `src/aeron_sbe.rs` — SBE envelope encode/decode helpers
-- `schema/fix_aeron_envelope.xml` — Aeron transport SBE schema
-- `generated/rust/nanofix_sbe` — official generated Rust SBE bindings
-- `src/engine.rs` — acceptor/initiator engine behavior
-- `src/bin/aeron_demo.rs` — runnable end-to-end Aeron example
-- `tests/aeron_integration.rs` — focused regression coverage
+- `crates/nanofix/src/transport.rs` — transport config, modes, and the TCP factory
+- `crates/nanofix-aeron/src/lib.rs` — `build_transport` including Aeron
+- `crates/nanofix-aeron/src/transport_aeron.rs` — Aeron transport backend
+- `crates/nanofix-aeron/src/aeron_sbe.rs` — SBE envelope encode/decode helpers
+- `crates/nanofix-sbe/schema/fix_aeron_envelope.xml` — Aeron transport SBE schema
+- `crates/nanofix-sbe` — official generated Rust SBE bindings
+- `crates/nanofix/src/engine.rs` — acceptor/initiator engine behavior
+- `crates/nanofix-aeron/src/bin/aeron_demo.rs` — runnable end-to-end Aeron example
+- `crates/nanofix-aeron/tests/aeron_integration.rs` — focused regression coverage

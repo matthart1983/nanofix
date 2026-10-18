@@ -1,0 +1,22 @@
+[package]
+name = "nanofix-aeron"
+description = "Aeron IPC/UDP transport for nanofix, with FIX-to-SBE normalization"
+readme = "README.md"
+keywords = ["fix", "aeron", "trading", "low-latency", "ipc"]
+categories = ["network-programming", "finance"]
+links = "aeron"
+build = "build.rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+nanofix.workspace = true
+nanofix-sbe.workspace = true
+hdrhistogram = "7.5"
+
+[build-dependencies]
+cmake = "0.1"

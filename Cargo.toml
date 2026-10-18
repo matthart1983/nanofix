@@ -1,52 +1,18 @@
-[package]
-name = "nanofix"
+[workspace]
+members = ["crates/nanofix", "crates/nanofix-sbe", "crates/nanofix-aeron"]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
-description = "High-performance FIX protocol engine for institutional trading"
 license = "MIT"
+authors = ["Matt Hartley"]
+repository = "https://github.com/matthart1983/nanofix"
+homepage = "https://github.com/matthart1983/nanofix"
 
-[features]
-aeron = []
-default = ["aeron"]
-dpdk = []
-openonload = []
-kernel-tcp = []
-tls = ["dep:rustls"]
-simd-avx2 = []
-simd-neon = []
-
-[dependencies]
-rustls = { version = "0.23", optional = true }
-memmap2 = "0.9"
-crossbeam-utils = "0.8"
-hdrhistogram = "7.5"
-nanofix_sbe = { path = "generated/rust/nanofix_sbe" }
-
-[build-dependencies]
-cmake = "0.1"
-
-[dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
-rand = "0.8"
-proptest = "1.4"
-quickcheck = "1.0"
-tokio = { version = "1", features = ["full"] }
-
-[[bench]]
-name = "parse_benchmark"
-harness = false
-
-[[bench]]
-name = "serialize_benchmark"
-harness = false
-
-[[bench]]
-name = "throughput_benchmark"
-harness = false
-
-[[bench]]
-name = "session_benchmark"
-harness = false
+[workspace.dependencies]
+nanofix = { path = "crates/nanofix", version = "0.1.0" }
+nanofix-sbe = { path = "crates/nanofix-sbe", version = "0.1.0" }
 
 [profile.release]
 opt-level = 3
