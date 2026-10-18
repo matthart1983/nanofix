@@ -10,9 +10,17 @@ if [[ -z "$SBE_TOOL_JAR" ]]; then
   exit 1
 fi
 
+# sbetool writes a whole crate (<output>/nanofix_sbe/{Cargo.toml,src}).
+# Keep the hand-maintained Cargo.toml in crates/nanofix-sbe and take only src/.
+OUT="$(mktemp -d)"
+trap 'rm -rf "$OUT"' EXIT
+
 java --add-opens java.base/jdk.internal.misc=ALL-UNNAMED \
-  -Dsbe.output.dir="$ROOT_DIR/generated/rust" \
+  -Dsbe.output.dir="$OUT" \
   -Dsbe.target.language=Rust \
   -Dsbe.target.namespace=nanofix_sbe \
   -jar "$SBE_TOOL_JAR" \
-  "$ROOT_DIR/schema/fix_aeron_envelope.xml"
+  "$ROOT_DIR/crates/nanofix-sbe/schema/fix_aeron_envelope.xml"
+
+rm -rf "$ROOT_DIR/crates/nanofix-sbe/src"
+cp -R "$OUT/nanofix_sbe/src" "$ROOT_DIR/crates/nanofix-sbe/src"
