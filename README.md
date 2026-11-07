@@ -4,7 +4,7 @@
     <strong>Ultra-low-latency FIX protocol engine for institutional trading</strong>
   </p>
   <p align="center">
-    <a href="#performance">111K msg/s TCP</a> · <a href="#performance">28 ns serialize</a> · <a href="#performance">Zero allocations</a> · <a href="#architecture">Lock-free</a>
+    <a href="#performance">111K msg/s TCP</a> · <a href="#performance">28 ns heartbeat serialize</a> · <a href="#performance">Zero allocations</a> · <a href="#architecture">Lock-free</a>
   </p>
 </p>
 
@@ -14,7 +14,7 @@
   <img src="https://raw.githubusercontent.com/matthart1983/nanofix/main/demo.gif" alt="nanofix Demo" width="800">
 </p>
 
-nanofix is a **deterministic, zero-allocation FIX protocol engine** written in Rust, designed for the electronic trading infrastructure of tier-1 investment banks. It achieves sub-microsecond message parsing, single-digit microsecond wire-to-wire latency, and sustained throughput exceeding 2 million messages per second per core on Apple Silicon — benchmarked at **29× faster serialization** and **1.5–2.2× faster parsing** than QuickFIX/J. Aeron IPC is the standard colocated integration path, while TCP remains available for venue and counterparty connectivity.
+nanofix is a **deterministic, zero-allocation FIX protocol engine** written in Rust, designed for the electronic trading infrastructure of tier-1 investment banks. On Apple Silicon it parses a FIX message in about 1.2 µs (Criterion mean), sustains over 2 million parsed messages per second per core, and completes a localhost TCP NewOrderSingle → ExecutionReport round trip in 15.6 µs at p50. Against QuickFIX/J under the same loop methodology it serialises NewOrderSingle **28.7× faster** and parses NewOrderSingle and ExecutionReport **1.5–2.2× faster**; QuickFIX/J is faster at parsing Heartbeat. Aeron IPC is the standard colocated integration path, while TCP remains available for venue and counterparty connectivity.
 
 ## Crates
 
@@ -83,12 +83,13 @@ All numbers measured on Apple Silicon (M-series) using Criterion.rs. See [BENCHM
 
 | Benchmark | nanofix | QuickFIX/J | Speedup |
 |---|---|---|---|
-| Serialize NOS | **32 ns** | 917 ns | **29× faster** |
+| Serialize NOS | **32 ns** | 917 ns | **28.7× faster** |
 | Parse NOS | **532 ns** | 796 ns | **1.5× faster** |
 | Parse ExecRpt | **583 ns** | 1,270 ns | **2.2× faster** |
+| Parse Heartbeat | 474 ns | **330 ns** | 0.70× (QuickFIX/J faster) |
 | Throughput | **1.83M msg/s** | 1.21M msg/s | **1.5× faster** |
 
-> QuickFIX/J comparison run via `bench-vs-quickfixj/` and `crates/nanofix/src/bin/bench_compare.rs`. See [BENCHMARKS.md](BENCHMARKS.md) for methodology.
+> QuickFIX/J comparison run via `bench-vs-quickfixj/` and `crates/nanofix/src/bin/bench_compare.rs`. See [BENCHMARKS.md](BENCHMARKS.md) for methodology. Loop timings are lower than the Criterion means above (NOS serialisation: 32 ns in the loop, 59 ns under Criterion), so compare ratios within a table, not absolute numbers across tables.
 
 ### TCP Round-Trip (NOS → ExecRpt over localhost)
 
