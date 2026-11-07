@@ -21,7 +21,7 @@
 | Engine | Version | Notes |
 |---|---|---|
 | QuickFIX/J | 2.3.1 | Open source, Java |
-| **nanofix** | **1.0** | **This engine** |
+| **nanofix** | **0.1.0** | **This engine** |
 
 ---
 
@@ -157,6 +157,8 @@
 ## 3. QuickFIX/J Comparison
 
 Both engines benchmarked using the same simple loop methodology with 1M iterations each, on the same hardware.
+
+Loop timings are not comparable with the Criterion means in section 2. The loop reports lower figures: NewOrderSingle serialisation is 32 ns here and 59 ns in BM-02, and NewOrderSingle parsing is 532 ns here and 1.20 µs in BM-01. The ratios below compare the two engines under the same loop, which is what they are for.
 
 | Benchmark | nanofix | QuickFIX/J | Ratio |
 |---|---|---|---|
